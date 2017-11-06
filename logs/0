@@ -3,18 +3,117 @@
         "Fitness Evaluations": 10000,
         "Log File Path": null,
         "Random Seed": 0,
-        "Runs": 1,
+        "Runs": 30,
         "Solution File Path": null,
-        "d": 5,
-        "k": 15,
-        "l": 15
+        "d": 10,
+        "k": 100,
+        "l": 100
     },
     "Problem Instance Files": "./solutions/0",
     "Random Seed": 0,
-    "Run Time": 3
+    "Run Time": 1533
 }
 Result Log
 
 Run 1
-0 6
+0 -74
+3 75
+
+Run 2
+0 -77
+1 71
+
+Run 3
+0 -72
+5 84
+
+Run 4
+0 68
+
+Run 5
+0 78
+
+Run 6
+0 -69
+5 90
+
+Run 7
+0 -88
+1 51
+
+Run 8
+0 59
+
+Run 9
+0 67
+
+Run 10
+0 67
+
+Run 11
+0 72
+
+Run 12
+0 79
+
+Run 13
+0 90
+
+Run 14
+0 -81
+1 63
+
+Run 15
+0 84
+
+Run 16
+0 -61
+2 99
+
+Run 17
+0 -76
+1 72
+
+Run 18
+0 -73
+2 80
+
+Run 19
+0 82
+
+Run 20
+0 69
+
+Run 21
+0 69
+
+Run 22
+0 85
+
+Run 23
+0 -75
+1 74
+
+Run 24
+0 84
+
+Run 25
+0 62
+
+Run 26
+0 74
+
+Run 27
+0 -74
+3 77
+
+Run 28
+0 77
+
+Run 29
+0 -68
+2 84
+
+Run 30
+0 59
 
