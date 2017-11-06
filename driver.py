@@ -4,7 +4,7 @@
 from helper import *
 
 def main():
-	# If we do not recieve 3 arguments, exit
+	# If we do not recieve 2 arguments, exit
 	if len(sys.argv) != 2:
 		print('Usage: python3 driver.py <config file>')
 		quit()
@@ -52,13 +52,13 @@ def main():
 	# Write to solution file best solution
 	create_solution_file(return_dict[best_index][1], config_dict['solution_file_path'], best_index + 1)
 
-	
+	# Create tree grah and eval graph, store in ./graph/
 	try:
 		import graph
 		graph.make_picture(best_solution, config_dict)
 		graph.create_graph_best(config_dict, return_dict[best_index][0])
 	except:
-		pass
+		print("Could not generate graph")
 
 
 

@@ -12,14 +12,14 @@ For this assignment, the task is to implement the Prisoner's Dilemma problem usi
 
 This is done by randomly creating a tree for each evaluation. The tree consists of AND, OR, XOR, and NOT operators. Each leaf of the tree is a string of "P" or "O" followed by a number. P represents a prisoner, O represents the opponent. The number is the number of the decision to look back at. For example, if the number if 2, we would look back at two decisions ago. Internally, if a number if positive, then it is a prisoner, negative if opponent.
 
-Fitness is determined by subtracting the fitness of the tree (number of years the prisoner was able to get out of prison) by the tic-for-tac method. Thus, if the fitness is negative, then tic-for-tac performed better than random search.
+Fitness is determined by subtracting the fitness of the tree (average number of years the prisoner was able to get out of prison) by the tic-for-tac method. Thus, if the fitness is negative, then tic-for-tac performed better than random search.
 
 ## How to run
 ```
 ./run.sh
 ```
 
-* It is assumed that any configurations that need to be done are done in *default.cfg*
+* It is assumed that any configurations that need to be done are done in *default.cfg*, which follows the JSON file format
 
 ## File Descriptions
 

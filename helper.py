@@ -10,6 +10,16 @@ from progressBar import ProgressBar
 
 ############################## Generic Helpers ##############################
 def config_parser(file_name):
+	"""Convert json file to configuration dictionary
+
+	Args:
+		file_name (str): JSON file containing configuration parameters
+
+	Returns:
+		config_file (dict{str: val}): Configuration parameters
+
+
+	"""
 	json_config_file = {}
 
 	with open(file_name, 'r') as f:
@@ -102,9 +112,10 @@ def create_log_file(config_dict):
 				"Log File Path": "./logs/1234567890.log",
 				"Solution File Path": "./solution/1234567890.txt"
 			}
-			"Algorithm Log File Path:": "../algorithm_log/1234567890.txt"
 		}
 
+	Args:
+		config_dict (dict {str: value}): Configuration parameters
 	"""
 	log_dict = {}
 	log_dict['Problem Instance Files'] = config_dict['solution_file_path']
@@ -124,7 +135,7 @@ def create_log_file(config_dict):
 
 def write_algorithm_log(file, runs, return_dict, config_dict):
 	"""Write evals to algorithm log file, creating sub-directory if needed
-	Writes algorithm log's \nin the following format:
+	Writes algorithm log's in the following format:
 		<run number><tab><fitness function value>
 	These lines are only written if the fitness function value improves
 	
@@ -138,7 +149,6 @@ def write_algorithm_log(file, runs, return_dict, config_dict):
 		os.makedirs(os.path.dirname(file))
 
 	with open(file, 'a') as f:
-		#f.write('\n\n' + add_to_algorithm_log_string([], config_dict, header=True))
 		f.write("\nResult Log\n")
 		for i in range(runs):
 			f.write(return_dict[i][0])
@@ -146,7 +156,7 @@ def write_algorithm_log(file, runs, return_dict, config_dict):
 		f.write('\n')
 
 def create_solution_file(best_board, path, run_number):
-	"""Create solution file using the best board from the run
+	"""Create solution file using the best tree from the run
 
 	Use the best board from a run to create a solution file. The solution file
 	is formated in the following form:
@@ -196,6 +206,16 @@ def create_solution_file(best_board, path, run_number):
 
 ############################## Algorithm Helpers ##############################
 def sequence_generator(k):
+	"""Generates a sequence of moves
+
+	Args:
+		k (int): Number of moves to generate
+
+	Returns:
+		(list, ie: [[0, 0], ..]): List of move, where each move is a list
+			containing a set of 0's and 1's. 0 represents defecting, 1 
+			represents cooperating
+	"""
 	sequence = []
 	options = [0, 1]
 
@@ -205,6 +225,14 @@ def sequence_generator(k):
 	return sequence
 
 def opponent_move_generator(l):	
+	"""Generates opponent moves
+
+	Args:
+		l (int): Number of opponent moves to test
+
+	Returns:
+		(list): List of 0's and 1's. 0 means defect, 1 means cooperate
+	"""
 	sequence = []
 	options = [0, 1]
 
@@ -214,6 +242,21 @@ def opponent_move_generator(l):
 	return sequence
 
 def tic_for_tat(last_move, oppontent_moves):
+	"""Compute fitness following the tic-for-tat strategy
+
+	Tic-for-tat strategy is done by doing what you opponent did last round
+	to them this round
+
+	Args:
+		last_move (int): 0 or 1 representing the last move the opponent
+			had done before this
+		opponent_moves (list of int): A list of opponent moves, where the 
+			first in the list if evaluated first
+
+	Returns:
+		(float): Average fitness calculated 
+
+	"""
 	count = 0
 	fitness = 0
 
@@ -223,9 +266,21 @@ def tic_for_tat(last_move, oppontent_moves):
 	for i in range(1, len(oppontent_moves)):
 		fitness += fitness_value(oppontent_moves[i-1], oppontent_moves[i])
 
-	return fitness
+	return fitness / len(oppontent_moves)
 
 def random_search(config_dict, run_number, return_dict):
+	"""Performs random search on the Prisoner's Dilemma problem
+
+	Args:
+		config_dict (dict {str:value}): Configuration parameters
+		run_number (int): What run number this is, used as key
+			for the return dictionary. If this is the last run, then
+			will print out progress bar
+		return_dict (dict): What is returned from the function
+			[0] is the log string
+			[1] is the best Prisoner
+	"""
+
 	# Seed the random number generator with random_seed + run number
 	# This makes each run unique
 	random.seed(config_dict['random_seed'] + run_number)
@@ -245,7 +300,7 @@ def random_search(config_dict, run_number, return_dict):
 
 	# Initialize best prisoner and best prisoner fitness
 	best_prisoner = 0
-	best_fitness = -9999999999999
+	best_fitness = -999
 
 	# Initalize log file string
 	log_file_string = '\nRun ' + str(run_number + 1) + '\n'
@@ -262,16 +317,23 @@ def random_search(config_dict, run_number, return_dict):
 		progress_bar.printProgressBar(0)
 	### END Progress Bar Set Up ###
 
+	# For each iteration
 	for current_eval in range(config_dict['fitness_evaluations']):
 		if print_progress_bar:
 			progress_bar.printProgressBar(current_eval)
 		
+		# Create a new prisoner, randomly make a new tree
 		prisoner = Prisoner()
-		fitness = prisoner.find_fitness(config_dict['k'], config_dict['l'], sequence, oppontent_moves) - base_fitness
+		# Find fitness
+		fitness = prisoner.find_fitness(config_dict['l'], sequence, oppontent_moves) - base_fitness
+		
+		# If fitness is better than old best fitness
 		if fitness > best_fitness:
+			# Make this prisoner the new best prisoner
 			best_fitness = fitness
 			best_prisoner = prisoner
 			log_file_string += '{} {}\n'.format(current_eval, best_fitness)
 
+	# Set return dict to return log string and best prisoner
 	return_dict[run_number] = (log_file_string, best_prisoner)
 		
