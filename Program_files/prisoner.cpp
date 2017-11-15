@@ -4,6 +4,8 @@ Prisoner::Prisoner() {
 	leaf_lhs = 0;
 	leaf_rhs = 0;
 	op = "";
+
+	fitness = 0;
 }
 
 Prisoner::Prisoner(const Prisoner & rhs) {
@@ -22,6 +24,10 @@ Prisoner::Prisoner(const Prisoner & rhs) {
 	} else {
 		right_branch = unique_ptr<Prisoner> (new Prisoner(*rhs.right_branch));
 	}
+
+	//move_queue = rhs.move_queue;
+
+	fitness = 0; // Reset fitness
 }
 
 const Prisoner & Prisoner::operator =(const Prisoner & rhs) {
@@ -29,6 +35,8 @@ const Prisoner & Prisoner::operator =(const Prisoner & rhs) {
 		op = rhs.op;
 		leaf_lhs = rhs.leaf_lhs;
 		leaf_rhs = rhs.leaf_rhs;
+
+		//move_queue = rhs.move_queue;
 
 		left_branch = unique_ptr<Prisoner> (new Prisoner(*rhs.left_branch));
 		right_branch = unique_ptr<Prisoner> (new Prisoner(*rhs.right_branch));
@@ -43,6 +51,14 @@ const Prisoner & Prisoner::operator =(const Prisoner & rhs) {
 
 		}
 		*/
+		/*
+		if(rhs.left_branch != nullptr) {
+			unique_ptr<Prisoner> p = (new Prisoner);
+			p -> op = rhs.left_branch -> op;
+			p -> leaf_lhs = rhs.left_branch -> leaf_lhs;
+			p -> leaf_rhs = rhs.right_branch -> leaf_rhs;
+		}
+		*/
 	}
 
 	return *this;
@@ -55,6 +71,12 @@ const Prisoner & Prisoner::operator =(const Prisoner & rhs) {
    Repeat with the new point as the base
   */
 
+void Prisoner::set_move_queue(const deque<Move>& m_q) {
+	move_queue = m_q;
+
+	return;
+}
+
 void Prisoner::randomly_initalize_tree() {
 	op = random_operator();
 	left_branch = generate_branch(1);
@@ -63,7 +85,7 @@ void Prisoner::randomly_initalize_tree() {
 	}
 }
 
-unique_ptr<Prisoner> Prisoner::generate_branch(int depth) {
+unique_ptr<Prisoner> Prisoner::generate_branch(int depth) const {
 	unique_ptr<Prisoner> new_branch(new Prisoner);
 
 	// Random chance of increasing depth
@@ -88,7 +110,7 @@ unique_ptr<Prisoner> Prisoner::generate_branch(int depth) {
 	return new_branch;
 }
 
-string Prisoner::random_operator() {
+string Prisoner::random_operator() const {
 	int r = rand() % 4;
 
 	if(r == 0){
@@ -102,8 +124,8 @@ string Prisoner::random_operator() {
 	}
 }
 
-int Prisoner::random_leaf() {
-	int r = rand() % (config.agent_memory_length + 1) + 1;
+int Prisoner::random_leaf() const {
+	int r = rand() % (config.agent_memory_length) + 1;
 
 	if(rand() % 2 == 1) {
 		return r;
@@ -112,6 +134,55 @@ int Prisoner::random_leaf() {
 	}
 }
 
+void Prisoner::assign_fitness() {
+	if(fitness == 0) {
+		// Play 2k rounds;
+		for(int i = 0; i < (2*config.agent_memory_length); i++) {
+
+		}
+	}
+}
+
+bool Prisoner::find_value() const {
+	return recursively_find_value(*this);
+}
+
+bool Prisoner::recursively_find_value(const Prisoner& branch) const {
+	// Base case (only leaves)
+	if(branch.left_branch == nullptr) {
+		if(branch.op == "AND") {
+			return get_move_value(branch.leaf_lhs) & get_move_value(branch.leaf_rhs);
+		} else if(branch.op == "OR") {
+			return get_move_value(branch.leaf_lhs) | get_move_value(branch.leaf_rhs);
+		} else if(branch.op == "XOR") {
+			return get_move_value(branch.leaf_lhs) ^ get_move_value(branch.leaf_rhs);
+		} else if(branch.op == "NOT") {
+			return !get_move_value(branch.leaf_lhs);
+		}
+	} else {
+		if(branch.op == "AND") {
+			return recursively_find_value(*branch.left_branch) & recursively_find_value(*branch.right_branch);
+		} else if(branch.op == "OR") {
+			return recursively_find_value(*branch.left_branch) | recursively_find_value(*branch.right_branch);
+		} else if(branch.op == "XOR") {
+			return recursively_find_value(*branch.left_branch) ^ recursively_find_value(*branch.right_branch);
+		} else if(branch.op == "NOT") {
+			return !recursively_find_value(*branch.left_branch);
+		}
+	}
+}
+
+bool Prisoner::get_move_value(const int m) const {
+	if(m > 0) {
+		return move_queue[m - 1].p;
+	} else {
+		return move_queue[-m - 1].o;
+	}
+} 
+
+bool Prisoner::operator <(const Prisoner& rhs) {
+	return fitness < rhs.fitness;
+}
 
 ostream& operator <<(ostream& os, Prisoner p) {
 	os << p.op << " ";

@@ -15,15 +15,9 @@ int main() {
 	// Initalize random seed
 	srand (time(NULL));
 
-	Prisoner a;
-	a.randomly_initalize_tree();
-	cout << a.op << endl;
-	cout << a << endl;
-
-	Prisoner b;
-	b = a;
-	cout << a << endl;
-	cout << b << endl;
+	for(int i = 0; i < Prisoner::config.runs; i++) {
+		pg_run(i);
+	}
 
 	return 0;
 }
