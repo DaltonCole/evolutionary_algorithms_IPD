@@ -17,6 +17,14 @@ class Config {
 		string log_file_path;
 		string solution_file_path;
 		int fitness_evaluations;
+		int population_size;
+		int children_count;
+		string parent_selection;
+		string survival_selection;
+		float parsimony_pressure;
+		int termination_convergence;
+		float over_selection;
+		float mutation_rate;
 
 		// Read in parameters from a file
 		Config();

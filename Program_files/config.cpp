@@ -13,6 +13,14 @@ Config::Config() {
 	fitness_evaluations = 10000;
 	log_file_path = "";
 	solution_file_path = "";
+	population_size = 5;
+	children_count = 5;
+	parent_selection = "Fitness_Proportional_Selection";
+	survival_selection = "Truncation";
+	parsimony_pressure = 0.5;
+	termination_convergence = 10000;
+	over_selection = 0.2;
+	mutation_rate = 0.05;
 
 	// Open config file
 	ifstream file("../default.cfg");
@@ -52,6 +60,22 @@ void Config::set_configs(string & key, string & value) {
 		log_file_path = value;
 	} else if(key == "Solution_File_Path") {
 		solution_file_path = value;
+	} else if(key == "Population_Size") {
+		population_size = stoi(value);
+	} else if(key == "Children_Count") {
+		children_count = stoi(value);
+	} else if(key == "Parent_Selection") {
+		parent_selection = value;
+	} else if(key == "Survival_Selection") {
+		survival_selection = value;
+	} else if(key == "Parsimony_Pressure_Penalty_Coefficent") {
+		parsimony_pressure = stof(value);
+	} else if(key == "Termination_Convergence_Criterion") {
+		termination_convergence = stoi(value);
+	} else if(key == "Over_Selection") {
+		over_selection = stof(value);
+	} else if(key == "Mutation_Rate") {
+		mutation_rate = stof(value);
 	}
 
 	return;

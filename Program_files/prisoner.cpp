@@ -25,9 +25,8 @@ Prisoner::Prisoner(const Prisoner & rhs) {
 		right_branch = unique_ptr<Prisoner> (new Prisoner(*rhs.right_branch));
 	}
 
-	//move_queue = rhs.move_queue;
-
-	fitness = 0; // Reset fitness
+	fitness = rhs.fitness;
+	current_depth = rhs.current_depth;
 }
 
 const Prisoner & Prisoner::operator =(const Prisoner & rhs) {
@@ -35,31 +34,47 @@ const Prisoner & Prisoner::operator =(const Prisoner & rhs) {
 		op = rhs.op;
 		leaf_lhs = rhs.leaf_lhs;
 		leaf_rhs = rhs.leaf_rhs;
+		current_depth = rhs.current_depth;
+		fitness = rhs.fitness;
 
-		//move_queue = rhs.move_queue;
-
-		left_branch = unique_ptr<Prisoner> (new Prisoner(*rhs.left_branch));
-		right_branch = unique_ptr<Prisoner> (new Prisoner(*rhs.right_branch));
-
-		/*
-		bool end = false;
-		left_branch = unique_ptr<Prisoner> (new Prisoner);
-
-		unique_ptr<Prisoner> p (new Prisoner);
-		left_branch
-		while(!end) {
-
+		if(rhs.left_branch == nullptr) {
+			left_branch = nullptr;
+		} else {
+			left_branch = unique_ptr<Prisoner> (new Prisoner(*rhs.left_branch));
 		}
-		*/
-		/*
-		if(rhs.left_branch != nullptr) {
-			unique_ptr<Prisoner> p = (new Prisoner);
-			p -> op = rhs.left_branch -> op;
-			p -> leaf_lhs = rhs.left_branch -> leaf_lhs;
-			p -> leaf_rhs = rhs.right_branch -> leaf_rhs;
+
+		if(rhs.right_branch == nullptr) {
+			right_branch = nullptr;
+		} else {
+			right_branch = unique_ptr<Prisoner> (new Prisoner(*rhs.right_branch));
 		}
-		*/
 	}
+
+	return *this;
+}
+
+Prisoner::Prisoner(Prisoner&& other) {	
+	//cout << "MOVE" << endl;
+	op = other.op;
+	leaf_lhs = other.leaf_lhs;
+	leaf_rhs = other.leaf_rhs;
+	current_depth = other.current_depth;
+	fitness = other.fitness;
+	left_branch.swap(other.left_branch);
+	right_branch.swap(other.right_branch);
+	move_queue.swap(other.move_queue);
+}
+
+Prisoner& Prisoner::operator =(Prisoner&& other) {
+	//cout << "MOVE EQUAL" << endl;
+	op = other.op;
+	leaf_lhs = other.leaf_lhs;
+	leaf_rhs = other.leaf_rhs;
+	current_depth = other.current_depth;
+	fitness = other.fitness;
+	left_branch.swap(other.left_branch);
+	right_branch.swap(other.right_branch);
+	move_queue.swap(other.move_queue);
 
 	return *this;
 }
@@ -77,12 +92,26 @@ void Prisoner::set_move_queue(const deque<Move>& m_q) {
 	return;
 }
 
+// ramped half-and-half: Grow method
 void Prisoner::randomly_initalize_tree() {
+	// TODO, make other leaf not have to end at the same time
 	op = random_operator();
 	left_branch = generate_branch(1);
+	if(left_branch == nullptr) {
+		leaf_lhs = random_leaf();
+		current_depth = 1;
+	} else {
+		current_depth = left_branch -> current_depth + 1;
+	}
 	if(op != "NOT") {
 		right_branch = generate_branch(1);
+
+		if(right_branch == nullptr) {
+			leaf_rhs = random_leaf();
+		}
 	}
+
+	return;
 }
 
 unique_ptr<Prisoner> Prisoner::generate_branch(int depth) const {
@@ -93,14 +122,20 @@ unique_ptr<Prisoner> Prisoner::generate_branch(int depth) const {
 		new_branch -> op = random_operator();
 		new_branch -> current_depth = depth + 1;
 		new_branch -> left_branch = generate_branch(depth + 1);
+		new_branch -> current_depth = (new_branch -> left_branch -> current_depth) + 1;
 		if(new_branch -> op != "NOT") {
 			new_branch -> right_branch = generate_branch(depth + 1);
+			if(new_branch -> current_depth < (new_branch -> right_branch -> current_depth) + 1) {
+				new_branch -> current_depth = (new_branch -> right_branch -> current_depth) + 1;
+			}
 		}
+
 	} else {
 		new_branch -> left_branch = nullptr;
 		new_branch -> right_branch = nullptr;
 		new_branch -> op = random_operator();
 		new_branch -> leaf_lhs = random_leaf();
+		new_branch -> current_depth = 1;
 
 		if(new_branch -> op != "NOT") {
 			new_branch -> leaf_rhs = random_leaf();
@@ -135,12 +170,25 @@ int Prisoner::random_leaf() const {
 }
 
 void Prisoner::assign_fitness() {
-	if(fitness == 0) {
-		// Play 2k rounds;
-		for(int i = 0; i < (2*config.agent_memory_length); i++) {
-
-		}
+	// Play 2k rounds;
+	for(int i = 0; i < (2*config.agent_memory_length); i++) {
+		append_tic_for_tac(move_queue, find_value());
 	}
+
+	bool decision;
+	fitness = 0; 
+	// Play l rounds that count towards fitness;
+	for(int i = 0; i < config.iterations; i++) {
+		// Make decision
+		decision = find_value();
+		// Add fitness value to fitness
+		fitness += fitness_function(decision, move_queue.back().o);
+		// Apply tic-for-tac
+		append_tic_for_tac(move_queue, decision);
+	}
+
+	// Take average for fitness
+	fitness /= config.iterations;
 }
 
 bool Prisoner::find_value() const {
@@ -180,8 +228,97 @@ bool Prisoner::get_move_value(const int m) const {
 	}
 } 
 
+int Prisoner::fitness_function(const bool p, const bool o) const {
+	if(p == true && o == true) {
+		return 3;
+	} else if(p == true && o == false) {
+		return 0;
+	} else if(p == false && o == true) {
+		return 5;
+	} else if(p == false && o == false) {
+		return 1;
+	}
+}
+
+float Prisoner::get_fitness() const {
+	return fitness;
+}
+
+void Prisoner::sub_tree_crossover(Prisoner& other) {
+	// Take min value of current depth
+	int random_num = rand() % min(current_depth, other.current_depth);
+
+	// TODO, do this ligitamently instead of switching branches
+	left_branch.swap(other.left_branch);
+
+	return;
+}
+
+void Prisoner::sub_tree_mutation() {
+	recursive_sub_tree_mutation(*this);
+
+	return;
+}
+
+void Prisoner::recursive_sub_tree_mutation(Prisoner& branch) {
+	// Change op
+	if(rand() % 100 < int(100.0 * config.mutation_rate)) {
+		string old_op = op;
+		op = random_operator();
+		if(op == "NOT") {
+			branch.right_branch.reset();
+			branch.leaf_rhs = 0;
+		} else if(old_op == "NOT" && op != "NOT") {
+			branch.right_branch = generate_branch(branch.current_depth + 1);
+			if(branch.right_branch -> current_depth >= branch.current_depth) {
+				branch.current_depth = branch.right_branch -> current_depth + 1;
+			}
+		}
+	}
+
+	// Base case, left branch
+	if(branch.left_branch == nullptr) {
+		// Left leaf
+		if(rand() % 100 < int(100.0 * config.mutation_rate)) {
+			branch.leaf_lhs = random_leaf();
+		}
+	} else {
+		// Left branch
+		if(rand() % 100 < int(100.0 * config.mutation_rate)) {
+			recursive_sub_tree_mutation(*branch.left_branch);
+		}
+	}
+
+	// Base case, right branch
+	if(branch.right_branch == nullptr) {
+		// Right leaf
+		if(op != "NOT" && rand() % 100 < int(100.0 * config.mutation_rate)) {
+			branch.leaf_rhs = random_leaf();
+		}
+	} else {
+		// Right branch
+		if(rand() % 100 < int(100.0 * config.mutation_rate)) {
+			recursive_sub_tree_mutation(*branch.right_branch);
+		}
+	}
+
+	return;
+}
+
+bool Prisoner::less_than(const Prisoner& rhs) const {
+	return fitness < rhs.fitness;
+}
+
 bool Prisoner::operator <(const Prisoner& rhs) {
 	return fitness < rhs.fitness;
+}
+
+bool operator <(const Prisoner& a, const Prisoner& b) {
+	return a.fitness < b.fitness;
+}
+
+bool operator >(const Prisoner& a, const Prisoner& b) {
+	return a.fitness > b.fitness;
 }
 
 ostream& operator <<(ostream& os, Prisoner p) {

@@ -5,6 +5,7 @@
 #include <memory>
 #include <deque>
 #include <stdlib.h>     /* srand, rand */
+#include <math.h>
 #include "config.h"
 #include "move.h"
 
@@ -18,6 +19,8 @@ class Prisoner {
 		Prisoner();
 		Prisoner(const Prisoner& rhs);
 		const Prisoner & operator =(const Prisoner& rhs);
+		Prisoner(Prisoner&& other);
+		Prisoner& operator =(Prisoner&& other);
 
 		void set_move_queue(const deque<Move>& m_q);
 
@@ -31,8 +34,18 @@ class Prisoner {
 		bool find_value() const;
 		bool recursively_find_value(const Prisoner& branch) const;
 		bool get_move_value(const int m) const;
+		int fitness_function(const bool p, const bool o) const;
 
+		float get_fitness() const;
+
+		void sub_tree_crossover(Prisoner& other);
+		void sub_tree_mutation();
+		void recursive_sub_tree_mutation(Prisoner& branch);
+
+		bool less_than(const Prisoner& rhs) const;
 		bool operator <(const Prisoner& rhs);
+		friend bool operator <(const Prisoner& a, const Prisoner& b);
+		friend bool operator >(const Prisoner& a, const Prisoner& b);
 
 		friend ostream& operator <<(ostream& os, Prisoner p);
 
@@ -50,7 +63,7 @@ class Prisoner {
 
 		int current_depth;
 
-		int fitness;
+		float fitness;
 
 		deque<Move> move_queue;
 };
