@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////
+/// @file config.h
+/// @author Dalton Cole, CS5201 A assignment 2b
+/// @brief Class declaration of Config
+//////////////////////////////////////////////////////////////////////
+
 #ifndef CONFIG_H
 #define CONFIG_H
 
@@ -25,11 +31,14 @@ class Config {
 		int termination_convergence;
 		float over_selection;
 		float mutation_rate;
+		int k_tournament_no_replacement;
 
 		// Read in parameters from a file
 		Config();
 		void set_configs(string & key, string & value);
 		void set_logs();
+
+		friend ostream& operator <<(ostream& os, Config& c);
 };
 
 #endif

@@ -5,7 +5,7 @@ Config::Config() {
 	string key, value;
 
 	// Initalize defaults (not logs)
-	random_seed = 0;
+	random_seed = -1;
 	iterations = 5;
 	agent_memory_length = 5;
 	max_depth = 5;
@@ -21,9 +21,10 @@ Config::Config() {
 	termination_convergence = 10000;
 	over_selection = 0.2;
 	mutation_rate = 0.05;
+	k_tournament_no_replacement = 2;
 
 	// Open config file
-	ifstream file("../default.cfg");
+	ifstream file("./default.cfg");
 
 	// Make sure file is open
 	if(file.is_open()) {
@@ -37,6 +38,13 @@ Config::Config() {
 
 	// Set log defaults if not already set
 	set_logs();
+
+	// Initalize random seed
+	if(random_seed == -1) {
+		srand (time(NULL));
+	} else {
+		srand(random_seed);
+	}
 }
 
 void Config::set_configs(string & key, string & value) {
@@ -76,6 +84,8 @@ void Config::set_configs(string & key, string & value) {
 		over_selection = stof(value);
 	} else if(key == "Mutation_Rate") {
 		mutation_rate = stof(value);
+	} else if(key == "K_Tournament_No_Replacement_K_Value") {
+		k_tournament_no_replacement = stoi(value);
 	}
 
 	return;
@@ -90,4 +100,26 @@ void Config::set_logs() {
 	}
 
 	return;
+}
+
+ostream& operator <<(ostream& os, Config& c) {
+	os << "Random_Seed " << to_string(c.random_seed) << "\n";
+	os << "l " << to_string(c.iterations) << "\n";
+	os << "k " << to_string(c.agent_memory_length) << "\n";
+	os << "d " << to_string(c.max_depth) << "\n";
+	os << "Runs " << to_string(c.runs) << "\n";
+	os << "Fitness_Evaluations " << to_string(c.fitness_evaluations) << "\n";
+	os << "Log_File_Path " << c.log_file_path << "\n";
+	os << "Solution_File_Path " << c.solution_file_path << "\n";
+	os << "Population_Size " << to_string(c.population_size) << "\n";
+	os << "Children_Count " << to_string(c.children_count) << "\n";
+	os << "Parent_Selection " << c.parent_selection << "\n";
+	os << "Survival_Selection " << c.survival_selection << "\n";
+	os << "Parsimony_Pressure_Penalty_Coefficent " << to_string(c.parsimony_pressure) << "\n";
+	os << "Termination_Convergence_Criterion " << to_string(c.termination_convergence) << "\n";
+	os << "Over_Selection " << to_string(c.over_selection) << "\n";
+	os << "Mutation_Rate " << to_string(c.mutation_rate) << "\n";
+	os << "K_Tournament_No_Replacement_K_Value " << to_string(c.k_tournament_no_replacement) << "\n";
+
+	return os;
 }

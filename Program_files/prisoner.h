@@ -1,3 +1,50 @@
+//////////////////////////////////////////////////////////////////////
+/// @file prisoner.h
+/// @author Dalton Cole, CS5201 A assignment 2b
+/// @brief Class declaration of Prisoner
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+/// @class Prisoner
+/// @brief Represents a prisoner in the prisoner's Dilemma problem
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+/// @fn Prisoner()
+/// @brief 
+/// @pre 
+/// @post 
+/// @param 
+/// @return 
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+/// @fn 
+/// @brief 
+/// @pre 
+/// @post 
+/// @param 
+/// @return 
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+/// @fn 
+/// @brief 
+/// @pre 
+/// @post 
+/// @param 
+/// @return 
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+/// @fn 
+/// @brief 
+/// @pre 
+/// @post 
+/// @param 
+/// @return 
+//////////////////////////////////////////////////////////////////////
+
 #ifndef PRISONER_H
 #define PRISONER_H
 
@@ -6,6 +53,7 @@
 #include <deque>
 #include <stdlib.h>     /* srand, rand */
 #include <math.h>
+#include <algorithm>
 #include "config.h"
 #include "move.h"
 
@@ -22,8 +70,6 @@ class Prisoner {
 		Prisoner(Prisoner&& other);
 		Prisoner& operator =(Prisoner&& other);
 
-		void set_move_queue(const deque<Move>& m_q);
-
 
 		void randomly_initalize_tree();
 		unique_ptr<Prisoner> generate_branch(int depth) const;
@@ -38,9 +84,13 @@ class Prisoner {
 
 		float get_fitness() const;
 
+		int assign_depth(Prisoner& p);
 		void sub_tree_crossover(Prisoner& other);
+		Prisoner* equal_level_branch(Prisoner& p, const int & goal_depth);
 		void sub_tree_mutation();
 		void recursive_sub_tree_mutation(Prisoner& branch);
+
+		friend deque<Move> generate_move_queue();
 
 		bool less_than(const Prisoner& rhs) const;
 		bool operator <(const Prisoner& rhs);
@@ -50,7 +100,10 @@ class Prisoner {
 		friend ostream& operator <<(ostream& os, Prisoner p);
 
 		static Config config;
-	//private:
+		static deque<Move> move_queue;
+
+
+	private:
 		
 
 		string op;
@@ -65,7 +118,16 @@ class Prisoner {
 
 		float fitness;
 
-		deque<Move> move_queue;
+		deque<Move> current_move_queue;
 };
 
 #endif
+
+//////////////////////////////////////////////////////////////////////
+/// @fn 
+/// @brief 
+/// @pre 
+/// @post 
+/// @param 
+/// @return 
+//////////////////////////////////////////////////////////////////////

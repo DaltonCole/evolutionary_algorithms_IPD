@@ -1,3 +1,9 @@
+//////////////////////////////////////////////////////////////////////
+/// @file helper.h
+/// @author Dalton Cole, CS5201 A assignment 2b
+/// @brief Declaration of Helper functions
+//////////////////////////////////////////////////////////////////////
+
 #ifndef HELPER_H
 #define HELPER_H
 
@@ -5,11 +11,12 @@
 #include <algorithm>
 #include <vector>
 #include <math.h>
+#include <fstream>
 
 #include "move.h"
 #include "prisoner.h"
 
-void pg_run(const int run_number);
+void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string);
 
 void make_past_moves(const int number_of_moves, deque<Move>& move_queue);
 
@@ -31,5 +38,14 @@ void survival_selection(vector<Prisoner>& population);
 
 void truncation(vector<Prisoner>& population);
 
+void k_tournament_selection_without_replacement(vector<Prisoner>& population);
+
+void find_best_in_tournament(const vector<Prisoner>& population, const vector<int>& random_numbers, int& best);
+
+void make_solution_file(vector<Prisoner>& best_population);
+
+float find_average_fitness(const vector<Prisoner>& population);
+
+void make_log_file(vector<string>& log);
 
 #endif
