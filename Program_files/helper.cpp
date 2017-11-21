@@ -23,31 +23,21 @@ void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string) {
 
 	for(int i = 0; i < Prisoner::config.fitness_evaluations; i += population.size()) {
 		// Find parents
-		//cout << "Find Parents" << endl;
 		find_parents(population, parents);
-		//for(auto& p : population) {
-		//	cout << p << endl;
-		//}
 
 		// Make children
-		//cout << "Make Children" << endl;
 		make_children(parents, children);
 		// Mutate children
-		//cout << "Mutate Children" << endl;
 		mutate_children(children);
 		// Find fitnesses for children
-		//cout << "Assign Fitness" << endl;
 		for(auto& c : children) {
 			c.assign_fitness();
-			//cout << c << endl;
 		}
 
-		//cout << "Combine" << endl;
 		// Combine population and children
 		population.insert(population.end(), children.begin(), children.end());
 
 		// Survival Selection
-		//cout << "Survival Selection" << endl;
 		survival_selection(population);
 
 		sort(population.begin(), population.end(), greater<Prisoner>());
@@ -57,6 +47,7 @@ void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string) {
 		log_string += " \t" + to_string(find_average_fitness(population));
 		log_string += " \t" + to_string(population[0].get_fitness()) + "\n";
 		
+		// If converging, quit
 		if(population[0].get_fitness() == previous_fitness) {
 			same_fitness_streak++;
 			if(same_fitness_streak == Prisoner::config.termination_convergence) {
@@ -66,20 +57,13 @@ void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string) {
 			previous_fitness = population[0].get_fitness();
 			same_fitness_streak = 0;
 		}
-
-		/*
-		cout << "Population" << endl;
-		for(auto& p : population) {
-			cout << p << endl;
-		}
-		cout << endl;
-		*/
 	}
 
 	best_prisoner = population[0];
 
 }
 
+// Make moves for move queue
 void make_past_moves(const int number_of_moves, deque<Move>& move_queue) {
 	Move m;
 
@@ -91,6 +75,7 @@ void make_past_moves(const int number_of_moves, deque<Move>& move_queue) {
 	return;
 }
 
+// Apply tic for tac method
 void append_tic_for_tac(deque<Move>& move_queue, const bool p_move) {
 	Move m;
 	m.p = p_move;
@@ -101,6 +86,7 @@ void append_tic_for_tac(deque<Move>& move_queue, const bool p_move) {
 	return;
 }
 
+// Find parents using method
 void find_parents(vector<Prisoner>& population, vector<Prisoner*>& parents) {
 	if(Prisoner::config.parent_selection == "Fitness_Proportional_Selection") {
 		fitness_proportional_selection(population, parents);
@@ -109,6 +95,7 @@ void find_parents(vector<Prisoner>& population, vector<Prisoner*>& parents) {
 	}
 }
 
+// Apply fitness proportional selection
 void fitness_proportional_selection(vector<Prisoner>& population, vector<Prisoner*>& parents) {
 	// Clear parent population
 	parents.clear();
@@ -117,6 +104,7 @@ void fitness_proportional_selection(vector<Prisoner>& population, vector<Prisone
 	int random_number;
 	int minimum;
 
+	// Find total fitness
 	for(const auto& p : population) {
 		int temp = p.get_fitness() + 1;
 		total_fitness += abs(temp);
@@ -125,10 +113,15 @@ void fitness_proportional_selection(vector<Prisoner>& population, vector<Prisone
 		}
 	}
 
+	// While there are more parents to add
 	while(parents.size() < Prisoner::config.children_count) {
+		// Reset tracker
 		tracker = 0;
+		// Pick a random number between 0 and total fitness
 		random_number = rand() % max(int(ceil(total_fitness)), 1);
 		
+		// When tracker is greater than random number, add that
+		// prisoner to the parent population
 		for(auto& p : population) {
 			tracker += (abs(p.get_fitness()) + minimum + 1);
 			if(tracker >= random_number) {
@@ -140,6 +133,7 @@ void fitness_proportional_selection(vector<Prisoner>& population, vector<Prisone
 	return;
 }
 
+// Apply over selection
 void over_selection(vector<Prisoner>& population, vector<Prisoner*>& parents) {
 	parents.clear();
 
@@ -165,6 +159,7 @@ void over_selection(vector<Prisoner>& population, vector<Prisoner*>& parents) {
 	return;
 }
 
+// Make children using sub tree crossover
 void make_children(vector<Prisoner*>& parents, vector<Prisoner>& children) {
 	children.clear();
 	sub_tree_crossover(parents, children);
@@ -172,6 +167,7 @@ void make_children(vector<Prisoner*>& parents, vector<Prisoner>& children) {
 	return;
 }
 
+// Apply sub tree crossover
 void sub_tree_crossover(vector<Prisoner*>& parents, vector<Prisoner>& children) {
 	Prisoner a;
 	Prisoner b;
@@ -180,13 +176,16 @@ void sub_tree_crossover(vector<Prisoner*>& parents, vector<Prisoner>& children) 
 		a = *parents[rand() % parents.size()];
 		b = *parents[rand() % parents.size()];
 
+		// Do cross over
 		a.sub_tree_crossover(b);
 
+		// Add children to children vector
 		children.push_back(a);
 		children.push_back(b);
 	}
 }
 
+// Mutate children using sub tree mutation
 void mutate_children(vector<Prisoner>& children) {
 	for(auto& c : children) {
 		c.sub_tree_mutation();
@@ -195,6 +194,7 @@ void mutate_children(vector<Prisoner>& children) {
 	return;
 }
 
+// Apply survival selection algorithm
 void survival_selection(vector<Prisoner>& population) {
 	if(Prisoner::config.survival_selection == "Truncation") {
 		truncation(population);
@@ -205,6 +205,7 @@ void survival_selection(vector<Prisoner>& population) {
 	return;
 }
 
+// Apply truncation to population
 void truncation(vector<Prisoner>& population) {
 	sort(population.begin(), population.end(), greater<Prisoner>());
 	while(population.size() > Prisoner::config.population_size) {
@@ -214,6 +215,7 @@ void truncation(vector<Prisoner>& population) {
 	return;
 }
 
+// Apply k tournament selection without replacement
 void k_tournament_selection_without_replacement(vector<Prisoner>& population) {
 	vector<Prisoner> new_population;
 	vector<int> random_numbers;
@@ -224,16 +226,21 @@ void k_tournament_selection_without_replacement(vector<Prisoner>& population) {
 		while(random_numbers.size() < Prisoner::config.k_tournament_no_replacement) {
 			random_numbers.push_back(rand() % population.size());
 		}
-		find_best_in_tournament(population,random_numbers, best);
+		// Find the best prisoner in the population
+		find_best_in_tournament(population, random_numbers, best);
+		// Add best prisoner to population
 		new_population.push_back(population[best]);
+		// Remote prisoner from vector (expensive)
 		population.erase(population.begin() + best);
 	}
 
+	// Set population equal to new population
 	population = new_population;
 
 	return;
 }
 
+// Find the prisoner with the highest fitness given their indexes in random_numbers
 void find_best_in_tournament(const vector<Prisoner>& population, const vector<int>& random_numbers, int& best) {
 	best = random_numbers[0];
 
@@ -285,6 +292,7 @@ void make_log_file(vector<string>& log) {
 	}
 }
 
+// Find average fitness
 float find_average_fitness(const vector<Prisoner>& population) {
 	float average = 0;
 	for(auto& p : population) {

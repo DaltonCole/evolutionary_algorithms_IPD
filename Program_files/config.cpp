@@ -47,6 +47,7 @@ Config::Config() {
 	}
 }
 
+// Set configs based on config file
 void Config::set_configs(string & key, string & value) {
 	if(value == "null") {
 		return;
@@ -91,6 +92,7 @@ void Config::set_configs(string & key, string & value) {
 	return;
 }
 
+// Set log strings if not already set
 void Config::set_logs() {
 	if(log_file_path == "") {
 		log_file_path = "logs/" + to_string(random_seed);
@@ -102,6 +104,7 @@ void Config::set_logs() {
 	return;
 }
 
+// Set output operator for log file printing
 ostream& operator <<(ostream& os, Config& c) {
 	os << "Random_Seed " << to_string(c.random_seed) << "\n";
 	os << "l " << to_string(c.iterations) << "\n";

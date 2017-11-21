@@ -1,37 +1,49 @@
 #include "prisoner.h"
 
+// Default Constructor
 Prisoner::Prisoner() {
+	// Set each leaf to 0
 	leaf_lhs = 0;
 	leaf_rhs = 0;
+	// Empty operator
 	op = "";
+	// No Depth
 	current_depth = 0;
-
+	// No Fitness
 	fitness = 0;
 }
 
+// Copy constructor
 Prisoner::Prisoner(const Prisoner & rhs) {
+	// Set leaf and operator
 	op = rhs.op;
 	leaf_lhs = rhs.leaf_lhs;
 	leaf_rhs = rhs.leaf_rhs;
 
+	// Recursively call left branch constructor
 	if(rhs.left_branch == nullptr) {
 		left_branch = nullptr;
 	} else {
 		left_branch = unique_ptr<Prisoner> (new Prisoner(*rhs.left_branch));
 	}
 
+	// Recursively call right branch constructor
 	if(rhs.right_branch == nullptr) {
 		right_branch = nullptr;
 	} else {
 		right_branch = unique_ptr<Prisoner> (new Prisoner(*rhs.right_branch));
 	}
 
+	// Same fitness and depth
 	fitness = rhs.fitness;
 	current_depth = rhs.current_depth;
 }
 
+// Operator =
 const Prisoner & Prisoner::operator =(const Prisoner & rhs) {
+	// If not the same object
 	if(this != &rhs) {
+		// Copy contents
 		op = rhs.op;
 		leaf_lhs = rhs.leaf_lhs;
 		leaf_rhs = rhs.leaf_rhs;
@@ -54,51 +66,56 @@ const Prisoner & Prisoner::operator =(const Prisoner & rhs) {
 	return *this;
 }
 
+// Move constructor
 Prisoner::Prisoner(Prisoner&& other) {	
 	op = other.op;
 	leaf_lhs = other.leaf_lhs;
 	leaf_rhs = other.leaf_rhs;
 	current_depth = other.current_depth;
 	fitness = other.fitness;
+
+	// Swap branches to this object
 	left_branch.swap(other.left_branch);
 	right_branch.swap(other.right_branch);
 }
 
+// Move equal
 Prisoner& Prisoner::operator =(Prisoner&& other) {
 	op = other.op;
 	leaf_lhs = other.leaf_lhs;
 	leaf_rhs = other.leaf_rhs;
 	current_depth = other.current_depth;
 	fitness = other.fitness;
+
+	// Swap branches to this object
 	left_branch.swap(other.left_branch);
 	right_branch.swap(other.right_branch);
 
 	return *this;
 }
 
-/*
- Make a point
-   Copy over x and y from the next pointer
-   Make this new point pointed to by next
-   Repeat with the new point as the base
-  */
-
 // ramped half-and-half: Grow method
 void Prisoner::randomly_initalize_tree() {
 	op = random_operator();
 	left_branch = generate_branch(1);
+
+	// If empty branch, initialize leaf
 	if(left_branch == nullptr) {
 		leaf_lhs = random_leaf();
 		current_depth = 1;
 	} else {
+		// Increment depth
 		current_depth = left_branch -> current_depth + 1;
 	}
 	if(op != "NOT") {
+		// Go down right branch if not NOT
 		right_branch = generate_branch(1);
 
+		// If empty branch, initialize right leaf
 		if(right_branch == nullptr) {
 			leaf_rhs = random_leaf();
 		} else {
+			// Make depth max between left branch and right branch + 1
 			current_depth = max(current_depth, right_branch -> current_depth + 1);
 		}
 	}
@@ -106,11 +123,14 @@ void Prisoner::randomly_initalize_tree() {
 	return;
 }
 
+// Recursively make branches
 unique_ptr<Prisoner> Prisoner::generate_branch(int depth) const {
+	// The new branch
 	unique_ptr<Prisoner> new_branch(new Prisoner);
 
 	// Random chance of increasing depth
 	if((config.max_depth - depth) != 0 && rand() % (config.max_depth - depth) >= 1) {
+		// Recursively make branch after setting operator
 		new_branch -> op = random_operator();
 		new_branch -> left_branch = generate_branch(depth + 1);
 		new_branch -> current_depth = (new_branch -> left_branch -> current_depth) + 1;
@@ -122,6 +142,7 @@ unique_ptr<Prisoner> Prisoner::generate_branch(int depth) const {
 		}
 
 	} else {
+		// Base case, make leaves
 		new_branch -> left_branch = nullptr;
 		new_branch -> right_branch = nullptr;
 		new_branch -> op = random_operator();
@@ -136,6 +157,7 @@ unique_ptr<Prisoner> Prisoner::generate_branch(int depth) const {
 	return new_branch;
 }
 
+// Pick a random operator
 string Prisoner::random_operator() const {
 	int r = rand() % 4;
 
@@ -150,6 +172,7 @@ string Prisoner::random_operator() const {
 	}
 }
 
+// Pick a random leaf 
 int Prisoner::random_leaf() const {
 	int r = rand() % (config.agent_memory_length) + 1;
 
@@ -160,7 +183,9 @@ int Prisoner::random_leaf() const {
 	}
 }
 
+// Find fitness value
 void Prisoner::assign_fitness() {
+	// Set current queue to the global queue
 	current_move_queue = move_queue;
 
 	// Play 2k rounds;
@@ -170,6 +195,7 @@ void Prisoner::assign_fitness() {
 
 	bool decision;
 	fitness = 0; 
+
 	// Play l rounds that count towards fitness;
 	for(int i = 0; i < config.iterations; i++) {
 		// Make decision
@@ -187,10 +213,12 @@ void Prisoner::assign_fitness() {
 	fitness -= (config.parsimony_pressure * current_depth);
 }
 
+// Helper function to find boolean value (move to make)
 bool Prisoner::find_value() const {
 	return recursively_find_value(*this);
 }
 
+// Recursively find what move to make
 bool Prisoner::recursively_find_value(const Prisoner& branch) const {
 	// Base case (only leaves)
 	if(branch.left_branch == nullptr && branch.right_branch == nullptr) {
@@ -234,6 +262,7 @@ bool Prisoner::recursively_find_value(const Prisoner& branch) const {
 	}
 }
 
+// Get move value out of current move queue
 bool Prisoner::get_move_value(const int m) const {
 	if(m > 0) {
 		return current_move_queue[m - 1].p;
@@ -242,6 +271,7 @@ bool Prisoner::get_move_value(const int m) const {
 	}
 } 
 
+// Define value for each move
 int Prisoner::fitness_function(const bool p, const bool o) const {
 	if(p == true && o == true) {
 		return 3;
@@ -254,10 +284,12 @@ int Prisoner::fitness_function(const bool p, const bool o) const {
 	}
 }
 
+// Getter for fitness
 float Prisoner::get_fitness() const {
 	return fitness;
 }
 
+// Find depth of tree
 int Prisoner::assign_depth(Prisoner& p) {
 	// If neither side is null
 	if(p.left_branch != nullptr && p.right_branch != nullptr) {
@@ -272,6 +304,7 @@ int Prisoner::assign_depth(Prisoner& p) {
 	return p.current_depth;
 }
 
+// Apply recombination to two trees (changes both *this and other)
 void Prisoner::sub_tree_crossover(Prisoner& other) {
 	// Assign depths
 	assign_depth(*this);
@@ -284,12 +317,12 @@ void Prisoner::sub_tree_crossover(Prisoner& other) {
 	Prisoner* lhs = equal_level_branch(*this, random_num);
 	Prisoner* rhs = equal_level_branch(other, random_num);
 
-	//*lhs -> swap(*rhs);
 	swap(*lhs, *rhs);
 
 	return;
 }
 
+// Finds branch of equal level to switch with other tree (so depth limit is kept)
 Prisoner* Prisoner::equal_level_branch(Prisoner& p, const int & goal_depth) {
 	// Base case, we are at the right depth
 	if(p.current_depth == goal_depth) {
@@ -314,12 +347,14 @@ Prisoner* Prisoner::equal_level_branch(Prisoner& p, const int & goal_depth) {
 	}
 }
 
+// Helper function to mutate tree
 void Prisoner::sub_tree_mutation() {
 	recursive_sub_tree_mutation(*this);
 
 	return;
 }
 
+// Recursively mutates the tree
 void Prisoner::recursive_sub_tree_mutation(Prisoner& branch) {
 	// Change op
 	if(rand() % 100 < int(100.0 * config.mutation_rate)) {
