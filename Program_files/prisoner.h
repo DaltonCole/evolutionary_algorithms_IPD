@@ -18,6 +18,7 @@
 #include <stdlib.h>     /* srand, rand */
 #include <math.h>
 #include <algorithm>
+#include <string>
 #include "config.h"
 #include "move.h"
 
@@ -34,6 +35,7 @@ class Prisoner {
 		Prisoner(Prisoner&& other);
 		Prisoner& operator =(Prisoner&& other);
 
+		bool operator ==(const Prisoner& rhs) const;
 
 		void randomly_initalize_tree();
 		unique_ptr<Prisoner> generate_branch(int depth) const;
@@ -41,6 +43,8 @@ class Prisoner {
 		int random_leaf() const;
 
 		void assign_fitness();
+		void coevolutionary_assign_fitness(vector<Prisoner>& population, int& fintess_evaulations, const int bad_index);
+		int append_move_to_queues(Prisoner* p);
 		bool find_value() const;
 		bool recursively_find_value(const Prisoner& branch) const;
 		bool get_move_value(const int m) const;
@@ -63,13 +67,12 @@ class Prisoner {
 
 		friend ostream& operator <<(ostream& os, Prisoner p);
 
+		friend string to_string(const Prisoner& p);
+
 		static Config config;
 		static deque<Move> move_queue;
 
-
 	private:
-		
-
 		string op;
 
 		int leaf_lhs;
@@ -84,6 +87,15 @@ class Prisoner {
 
 		deque<Move> current_move_queue;
 };
+
+namespace std {
+	template<>
+	struct hash<Prisoner> {
+		size_t operator()(const Prisoner& obj) const {
+			return hash<string>()(to_string(obj));
+		}
+	};
+}
 
 #endif
 

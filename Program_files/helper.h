@@ -48,4 +48,6 @@ float find_average_fitness(const vector<Prisoner>& population);
 
 void make_log_file(vector<string>& log);
 
+void inforce_hall_of_fame(vector<Prisoner>& population, deque<Prisoner>& hall_of_fame);
+
 #endif

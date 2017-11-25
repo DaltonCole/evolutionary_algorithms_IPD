@@ -22,6 +22,8 @@ Config::Config() {
 	over_selection = 0.2;
 	mutation_rate = 0.05;
 	k_tournament_no_replacement = 2;
+	survival_selection_strategy = "Plus";
+	coevolutionary_fitness_sampling_percentage = 1;
 
 	// Open config file
 	ifstream file("./default.cfg");
@@ -45,6 +47,9 @@ Config::Config() {
 	} else {
 		srand(random_seed);
 	}
+
+	// Ensure l is >= 3k
+	iterations = max(iterations, 3 * agent_memory_length);
 }
 
 // Set configs based on config file
@@ -87,6 +92,10 @@ void Config::set_configs(string & key, string & value) {
 		mutation_rate = stof(value);
 	} else if(key == "K_Tournament_No_Replacement_K_Value") {
 		k_tournament_no_replacement = stoi(value);
+	} else if(key == "Survival_Selection_Strategy") {
+		survival_selection_strategy = value;
+	} else if(key == "Coevolutionary_Fitness_Sampling_Percentage") {
+		coevolutionary_fitness_sampling_percentage = stoi(value);
 	}
 
 	return;

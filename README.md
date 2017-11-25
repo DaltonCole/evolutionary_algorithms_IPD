@@ -82,6 +82,12 @@ The configuration file used to feed into the program. There are the following op
 * Termination_Convergence_Criterion
 	* ** 10000 **
 	* Any int
+* Survival_Selection_Strategy
+	* ** Plus **
+	* Comma
+* Coevolutionary_Fitness_Sampling_Percentage
+	* ** 1 **
+	* Any int between 1 and population size + children count - 1
 
 ### logs/
 
@@ -98,3 +104,7 @@ Automatically generated graph files, such as the fitness plot and tree graph.
 ### Python/
 
 Contains assignment 2a
+
+## Bonus
+
+Bonus 1 and 2 are both completed in helper.cpp, inforce_hall_of_fame function

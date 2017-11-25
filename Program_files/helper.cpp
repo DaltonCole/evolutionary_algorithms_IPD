@@ -1,7 +1,6 @@
 #include "helper.h"
 
 void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string) {
-
 	// Make population
 	vector<Prisoner> population(Prisoner::config.population_size);
 
@@ -21,7 +20,16 @@ void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string) {
 	// Set up log_string
 	log_string = "";
 
+	// Set up hall-of-fame
+	deque<Prisoner> hall_of_fame;
+
 	for(int i = 0; i < Prisoner::config.fitness_evaluations; i += population.size()) {
+		// Print progress
+		cout << "Running run " << run_number + 1 << " of " << Prisoner::config.runs << 
+			"\t" << "Fitness Evals: " << i << " / " << Prisoner::config.fitness_evaluations
+		 	<< "                 " << flush << "\r";
+
+
 		// Find parents
 		find_parents(population, parents);
 
@@ -29,18 +37,28 @@ void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string) {
 		make_children(parents, children);
 		// Mutate children
 		mutate_children(children);
-		// Find fitnesses for children
-		for(auto& c : children) {
-			c.assign_fitness();
+
+		// Apply Survival Selection Strategy
+		if(Prisoner::config.survival_selection_strategy == "Plus") {
+			// Combine population and children
+			population.insert(population.end(), children.begin(), children.end());
+		} else { // Comma
+			// Set population to be children
+			population = children;
 		}
 
-		// Combine population and children
-		population.insert(population.end(), children.begin(), children.end());
+		// Assign fitness and update fitness value
+		for(int j = 0; j < population.size(); j++) {
+			population[j].coevolutionary_assign_fitness(population, i, j);
+		}
 
 		// Survival Selection
 		survival_selection(population);
 
 		sort(population.begin(), population.end(), greater<Prisoner>());
+
+		// Implement hall of fame
+		inforce_hall_of_fame(population, hall_of_fame);
 
 		// Set up log_string
 		log_string += to_string(i + population.size());
@@ -300,4 +318,21 @@ float find_average_fitness(const vector<Prisoner>& population) {
 	}
 
 	return average / population.size();
+}
+
+// BONUS 1 AND 2
+// Do hall-of-fame and detect cycling
+void inforce_hall_of_fame(vector<Prisoner>& population, deque<Prisoner>& hall_of_fame) {
+	while(true) {
+		// Item is not in the hall of fame or is the last item
+		if(find(hall_of_fame.begin(), hall_of_fame.end(), population[0]) == hall_of_fame.end()) {
+			hall_of_fame.push_back(population[0]);
+			break;
+		} else if(hall_of_fame.back() == population[0]) {
+			break;
+		} else {
+			cout << "cycling has occured, removing first element, adding random element" << endl;
+			population[0].randomly_initalize_tree();
+		}
+	}
 }

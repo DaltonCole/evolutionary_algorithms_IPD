@@ -8,6 +8,7 @@
 #define CONFIG_H
 
 #include <iostream>
+#include <algorithm>
 #include <string>
 #include <fstream>
 
@@ -32,6 +33,8 @@ class Config {
 		float over_selection;
 		float mutation_rate;
 		int k_tournament_no_replacement;
+		string survival_selection_strategy;
+		int coevolutionary_fitness_sampling_percentage;
 
 		// Read in parameters from a file
 		Config();

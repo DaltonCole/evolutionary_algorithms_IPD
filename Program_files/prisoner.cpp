@@ -94,6 +94,14 @@ Prisoner& Prisoner::operator =(Prisoner&& other) {
 	return *this;
 }
 
+bool Prisoner::operator ==(const Prisoner& rhs) const {
+	if(to_string(*this) == to_string(rhs)) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 // ramped half-and-half: Grow method
 void Prisoner::randomly_initalize_tree() {
 	op = random_operator();
@@ -132,15 +140,35 @@ unique_ptr<Prisoner> Prisoner::generate_branch(int depth) const {
 	if((config.max_depth - depth) != 0 && rand() % (config.max_depth - depth) >= 1) {
 		// Recursively make branch after setting operator
 		new_branch -> op = random_operator();
-		new_branch -> left_branch = generate_branch(depth + 1);
-		new_branch -> current_depth = (new_branch -> left_branch -> current_depth) + 1;
-		if(new_branch -> op != "NOT") {
-			new_branch -> right_branch = generate_branch(depth + 1);
-			if(new_branch -> current_depth < (new_branch -> right_branch -> current_depth) + 1) {
-				new_branch -> current_depth = (new_branch -> right_branch -> current_depth) + 1;
-			}
+
+		// Randomly either go down left branch, or make leaf
+		if(rand() % (config.max_depth - depth) >= 1) {
+			// Generate branch
+			new_branch -> left_branch = generate_branch(depth + 1);
+			// Set depth
+			new_branch -> current_depth = (new_branch -> left_branch -> current_depth) + 1;
+		} else {
+			// Set branch to null and randomly initalize left leaf
+			new_branch -> left_branch = nullptr;
+			new_branch -> leaf_lhs = random_leaf();
 		}
 
+		// If two operands are required
+		if(new_branch -> op != "NOT") {
+			// Randomly go down  right branch, or make leaf
+			if(rand() % (config.max_depth - depth) >= 1) {
+				// Generate branch
+				new_branch -> right_branch = generate_branch(depth + 1);
+				// Set depth
+				if(new_branch -> current_depth < (new_branch -> right_branch -> current_depth) + 1) {
+					new_branch -> current_depth = (new_branch -> right_branch -> current_depth) + 1;
+				}
+			} else {
+				// Set branch to null and randomly initalize right leaf
+				new_branch -> right_branch = nullptr;
+				new_branch -> leaf_rhs = random_leaf();
+			}
+		}
 	} else {
 		// Base case, make leaves
 		new_branch -> left_branch = nullptr;
@@ -149,6 +177,7 @@ unique_ptr<Prisoner> Prisoner::generate_branch(int depth) const {
 		new_branch -> leaf_lhs = random_leaf();
 		new_branch -> current_depth = 1;
 
+		// Make other leaf if requireing two operands
 		if(new_branch -> op != "NOT") {
 			new_branch -> leaf_rhs = random_leaf();
 		}
@@ -211,6 +240,80 @@ void Prisoner::assign_fitness() {
 
 	// Add bloat control
 	fitness -= (config.parsimony_pressure * current_depth);
+
+	return;
+}
+
+// Find fitness in a coevolutionary manner
+void Prisoner::coevolutionary_assign_fitness(vector<Prisoner>& population, int& fintess_evaulations, const int bad_index) {
+	// Set current queue to the global queue
+	current_move_queue = move_queue;
+
+	int times_to_compare = min(config.coevolutionary_fitness_sampling_percentage, int(population.size() - 1));
+
+	// Vector to hold the selected prisoners for comparison
+	vector<Prisoner*> prisoners_to_compare;
+
+	// Possible indexes to add to prisoners to compare vector
+	deque<int> indexes;
+
+	// Add possible indexes to indexes
+	for(int i = 0; i < population.size(); i++) {
+		if(i != bad_index) {
+			indexes.push_back(i);
+		}
+	}
+
+	// Shuffle indexes
+	random_shuffle(indexes.begin(), indexes.end());
+
+	// Add elements to prisoners to compare vector
+	while(times_to_compare != prisoners_to_compare.size()) {
+		prisoners_to_compare.push_back(&population[indexes.front()]);
+		indexes.pop_front();
+	}
+
+	// For each fighting prisoner
+	for(auto& p : prisoners_to_compare) {
+		// Assign base queue to opponent
+		p -> current_move_queue = move_queue;
+
+		// Play 2k rounds before keeping socre
+		for(int i = 0; i < 2 * config.agent_memory_length; i++) {
+			append_move_to_queues(p);
+		}
+
+		// Play l - 2k move moves, while keeping track of score
+		for(int i = 2 * config.agent_memory_length; i < config.iterations; i++) {
+			fitness += append_move_to_queues(p);
+		}
+	}
+
+	fitness /= ((config.iterations - (2 * config.agent_memory_length)) * prisoners_to_compare.size());
+
+	fintess_evaulations += prisoners_to_compare.size();
+}
+
+// Compute both prisoner's and opponent's move and append to respecive queues
+int Prisoner::append_move_to_queues(Prisoner* p) {
+	bool my_move = find_value();
+	bool opp_move = p -> find_value();
+
+	// Append my move
+	Move mine;
+	mine.p = my_move;
+	mine.o = opp_move;
+	current_move_queue.pop_front();
+	current_move_queue.push_back(mine);
+
+	// Append opponent's move
+	Move opponent;
+	opponent.p = opp_move;
+	opponent.o = my_move;
+	p -> current_move_queue.pop_front();
+	p -> current_move_queue.push_back(opponent);
+
+	return fitness_function(my_move, opp_move);
 }
 
 // Helper function to find boolean value (move to make)
@@ -299,8 +402,9 @@ int Prisoner::assign_depth(Prisoner& p) {
 	} else if(p.right_branch != nullptr) {
 		p.current_depth = assign_depth(*p.right_branch) + 1;
 	} else {
-		return 1;
+		p.current_depth = 1;
 	}
+
 	return p.current_depth;
 }
 
@@ -440,4 +544,21 @@ ostream& operator <<(ostream& os, Prisoner p) {
 	}
 
 	return os;
+}
+
+string to_string(const Prisoner& p) {
+	string s = p.op + " ";
+	if(p.left_branch != nullptr) {
+		s += to_string(*p.left_branch);
+	} else {
+		s += (p.leaf_lhs + " ");
+	}
+
+	if(p.right_branch != nullptr) {
+		s += to_string(*p.right_branch);
+	} else {
+		s += (p.leaf_rhs + " ");
+	}
+
+	return s;
 }
