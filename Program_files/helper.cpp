@@ -345,6 +345,7 @@ void make_absolute_fitness_log_file(vector<string>& overall_absolute_fitness_log
 		for(auto& l : overall_absolute_fitness_log) {
 			absolute_log << l;
 		}
+		absolute_log << "Last Eval: " << overall_absolute_fitness_log[overall_absolute_fitness_log.size() - 1] << "\n";
 		absolute_log << "\n";
 
 		absolute_log.close();

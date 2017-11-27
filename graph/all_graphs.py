@@ -10,11 +10,13 @@ files = os.listdir("../logs/")
 
 # number of runs
 runs = 0
+preivious_line = ''
 
 for file in files:
 	keep_track = False
 	ave_dict = {}
 	best_dict = {}
+	last_eval = []
 	with open("../logs/" + str(file), 'r') as f:
 		for line in f:
 			if "Run" in line and "Runs" not in line:
@@ -22,7 +24,9 @@ for file in files:
 				keep_track = True
 			elif "Absolute Fitness" in line:
 				keep_track = False
+				last_eval.append(preivious_line)
 			elif keep_track == True:
+				preivious_line = line
 				eve, ave, best = line.split()
 				eve = float(eve)
 				ave = float(ave)
@@ -70,6 +74,11 @@ for file in files:
 	# Clear graph memory
 	plt.clf()
 
+	### Add last eval points ###
+	with open("./points/relative/" + str(file), 'w') as f:
+		for line in last_eval:
+			f.write(line.split()[-1] + '\n')
+
 ############# ABSOLUTE #############
 # Files 
 files = os.listdir("../absolute_fitness_log/")
@@ -80,10 +89,13 @@ runs = 0
 for file in files:
 	ave_dict = {}
 	best_dict = {}
+	last_eval = []
 	with open("../absolute_fitness_log/" + str(file), 'r') as f:
 		for line in f:
 			if "Run" in line or line == '\n':
 				pass
+			elif "Last Eval:" in line:
+				last_eval.append(line.split()[-1])
 			else:
 				keep_track = False
 				eve, ave, best = line.split()
@@ -132,3 +144,8 @@ for file in files:
 
 	# Clear graph memory
 	plt.clf()
+
+	### Add last eval points ###
+	with open("./points/absolute/" + str(file), 'w') as f:
+		for line in last_eval:
+			f.write(line.split()[-1] + '\n')

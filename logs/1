@@ -10,7 +10,7 @@ Log_File_Path logs/1
 Solution_File_Path solutions/1
 Population_Size 100
 Children_Count 50
-Parent_Selection Over_Selection
+Parent_Selection Fitness_Proportional_Selection
 Survival_Selection Truncation
 Parsimony_Pressure_Penalty_Coefficent 0.100000
 Termination_Convergence_Criterion 10000
@@ -21,13 +21,13 @@ K_Tournament_No_Replacement_K_Value 2
 Result Log
 
 Run 1
-1600 	2.362581 	3.675000
-3200 	1.848325 	2.634485
-4800 	1.476364 	2.049273
-6400 	1.354604 	2.128853
-8000 	1.242956 	1.717142
-9600 	1.069366 	1.645505
-11200 	1.095189 	1.546183
+1600 	2.409010 	3.437000
+3200 	1.903526 	2.877185
+4800 	1.429796 	2.249858
+6400 	1.208837 	1.656441
+8000 	1.109452 	1.567031
+9600 	1.180915 	1.686480
+11200 	1.391058 	2.285639
 Absolute Fitness 
-3.000000
+3.400000
 

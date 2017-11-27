@@ -268,7 +268,7 @@ void Prisoner::assign_fitness() {
 	fitness /= config.iterations;
 
 	// Add bloat control
-	fitness -= (config.parsimony_pressure * current_depth);
+	//fitness -= (config.parsimony_pressure * current_depth);
 
 	return;
 }
