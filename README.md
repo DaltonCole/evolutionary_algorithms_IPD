@@ -41,53 +41,60 @@ This is the class that handles configutation. It sets up default parameters and 
 
 The configuration file used to feed into the program. There are the following options (**bold** represents default, or null (i.e., use null for default value)):
 * Random Seed:
-	* ** Time in seconds since Epoch **
+	* **Time in seconds since Epoch**
 	* Any int
 * l:
-	* ** 5 **
+	* **5**
 	* Any int
 * k:
-	* ** 5 **
+	* **5**
 	* Any int
 * d:
-	* ** 5 **
+	* **5**
 	* Any int
 * Runs:
-	* ** 1 **
+	* **1**
 	* Any int
 * Log File Path:
-	* ** /logs/<Random Seed> **
+	* **/logs/<Random Seed>**
 	* Any path
 * Solution File Path:
-	* ** /solutions/<Random Seed> **
+	* **/solutions/<Random Seed>**
 	* Any path
 * Fitness Evaluations:
-	* ** 10000 **
+	* **10000**
 	* Any int
 * Population_Size:
-	* ** 5 **
+	* **5**
 	* Any int
 * Children_Count:
-	* ** 5 **
+	* **5**
 	* Any int
 * Parent_Selection:
-	* ** Fitness_Proportional_Selection **
+	* **Fitness_Proportional_Selection**
 	* Over_Selection
 * Survival_Selection:
-	* ** Truncation **
+	* **Truncation**
 	* K_Tournament_No_Replacement
 * Parsimony_Pressure_Penalty_Coefficent
-	* ** 0.5 **
+	* **0.5**
 	* Any float
 * Termination_Convergence_Criterion
-	* ** 10000 **
+	* **10000**
 	* Any int
 * Survival_Selection_Strategy
-	* ** Plus **
+	* **Plus**
 	* Comma
 * Coevolutionary_Fitness_Sampling_Percentage
-	* ** 1 **
+	* **1**
 	* Any int between 1 and population size + children count - 1
+* Detect_Cycling 
+	* **false**
+	* true
+	* NOTE: if Deter_Cycling is true, this will be set to true by default
+* Deter_Cycling
+	* **false**
+	* true
 
 ### logs/
 

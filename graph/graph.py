@@ -7,7 +7,7 @@ if len(sys.argv) != 5:
 	quit()
 
 # File Path
-file_path = sys.argv[1]
+file_path = "../lo"
 
 # Number of runs
 number_of_runs = int(sys.argv[2])

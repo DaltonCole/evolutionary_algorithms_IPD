@@ -24,6 +24,8 @@ Config::Config() {
 	k_tournament_no_replacement = 2;
 	survival_selection_strategy = "Plus";
 	coevolutionary_fitness_sampling_percentage = 1;
+	detect_cycling = "false";
+	deter_cycling = "false";
 
 	// Open config file
 	ifstream file("./default.cfg");
@@ -50,6 +52,11 @@ Config::Config() {
 
 	// Ensure l is >= 3k
 	iterations = max(iterations, 3 * agent_memory_length);
+
+	// Ensure detect is on if deter is on
+	if(deter_cycling == "true") {
+		detect_cycling = "true";
+	}
 }
 
 // Set configs based on config file
@@ -96,6 +103,10 @@ void Config::set_configs(string & key, string & value) {
 		survival_selection_strategy = value;
 	} else if(key == "Coevolutionary_Fitness_Sampling_Percentage") {
 		coevolutionary_fitness_sampling_percentage = stoi(value);
+	} else if(key == "Detect_Cycling") {
+		detect_cycling = value;
+	} else if(key == "Deter_Cycling") {
+		deter_cycling = value;
 	}
 
 	return;

@@ -16,7 +16,7 @@
 #include "move.h"
 #include "prisoner.h"
 
-void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string);
+void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string, string& absolute_string);
 
 void make_past_moves(const int number_of_moves, deque<Move>& move_queue);
 
@@ -47,6 +47,8 @@ void make_solution_file(vector<Prisoner>& best_population);
 float find_average_fitness(const vector<Prisoner>& population);
 
 void make_log_file(vector<string>& log);
+
+void make_absolute_fitness_log_file(vector<string>& overall_absolute_fitness_log);
 
 void inforce_hall_of_fame(vector<Prisoner>& population, deque<Prisoner>& hall_of_fame);
 

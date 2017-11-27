@@ -35,6 +35,8 @@ class Config {
 		int k_tournament_no_replacement;
 		string survival_selection_strategy;
 		int coevolutionary_fitness_sampling_percentage;
+		string detect_cycling;
+		string deter_cycling;
 
 		// Read in parameters from a file
 		Config();

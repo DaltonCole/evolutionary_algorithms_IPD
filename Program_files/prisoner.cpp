@@ -102,33 +102,62 @@ bool Prisoner::operator ==(const Prisoner& rhs) const {
 	}
 }
 
-// ramped half-and-half: Grow method
+// ramped half-and-half: 
 void Prisoner::randomly_initalize_tree() {
-	op = random_operator();
-	left_branch = generate_branch(1);
+	// Full method
+	if(rand() % 2 == 0) {
+		*this = *generate_full_tree(1);
+	} else { // Grow method
 
-	// If empty branch, initialize leaf
-	if(left_branch == nullptr) {
-		leaf_lhs = random_leaf();
-		current_depth = 1;
-	} else {
-		// Increment depth
-		current_depth = left_branch -> current_depth + 1;
-	}
-	if(op != "NOT") {
-		// Go down right branch if not NOT
-		right_branch = generate_branch(1);
+		op = random_operator();
+		left_branch = generate_branch(1);
 
-		// If empty branch, initialize right leaf
-		if(right_branch == nullptr) {
-			leaf_rhs = random_leaf();
+		// If empty branch, initialize leaf
+		if(left_branch == nullptr) {
+			leaf_lhs = random_leaf();
+			current_depth = 1;
 		} else {
-			// Make depth max between left branch and right branch + 1
-			current_depth = max(current_depth, right_branch -> current_depth + 1);
+			// Increment depth
+			current_depth = left_branch -> current_depth + 1;
+		}
+		if(op != "NOT") {
+			// Go down right branch if not NOT
+			right_branch = generate_branch(1);
+
+			// If empty branch, initialize right leaf
+			if(right_branch == nullptr) {
+				leaf_rhs = random_leaf();
+			} else {
+				// Make depth max between left branch and right branch + 1
+				current_depth = max(current_depth, right_branch -> current_depth + 1);
+			}
 		}
 	}
 
 	return;
+}
+
+// Make full tree
+unique_ptr<Prisoner> Prisoner::generate_full_tree(const int depth) const {
+	// The new branch
+	unique_ptr<Prisoner> new_branch(new Prisoner);
+
+	// Base case
+	if(depth == config.max_depth) {
+		new_branch -> op = random_operator();
+		new_branch -> leaf_lhs = random_leaf();
+		if(op != "NOT") {
+			new_branch -> leaf_rhs = random_leaf();
+		}
+	} else {
+		new_branch -> op = random_operator();
+		new_branch -> left_branch = generate_full_tree(depth + 1);
+		if(op != "NOT") {
+			new_branch -> right_branch = generate_full_tree(depth + 1);
+		}
+	}
+
+	return new_branch;
 }
 
 // Recursively make branches
@@ -415,7 +444,7 @@ void Prisoner::sub_tree_crossover(Prisoner& other) {
 	assign_depth(other);
 
 	// Take min value of current depth
-	int random_num = rand() % (min(current_depth, other.current_depth) - 1) + 1;
+	int random_num = rand() % min(current_depth, other.current_depth) + 1;
 
 	// Find branches of equal height
 	Prisoner* lhs = equal_level_branch(*this, random_num);
@@ -529,18 +558,26 @@ bool operator >(const Prisoner& a, const Prisoner& b) {
 	return a.fitness > b.fitness;
 }
 
+string leaf_to_string(const int leaf) {
+	if(leaf > 0) {
+		return "P" + to_string(leaf);
+	} else {
+		return "O" + to_string(-leaf);
+	}
+}
+
 ostream& operator <<(ostream& os, Prisoner p) {
 	os << p.op << " ";
 	if(p.left_branch != nullptr) {
 		os << (*p.left_branch);
 	} else {
-		os << p.leaf_lhs << " ";
+		os << leaf_to_string(p.leaf_lhs) << " ";
 	}
 
 	if(p.right_branch != nullptr) {
 		os << (*p.right_branch);
 	} else if(p.op != "NOT"){
-		os << p.leaf_rhs << " ";
+		os << leaf_to_string(p.leaf_rhs) << " ";
 	}
 
 	return os;

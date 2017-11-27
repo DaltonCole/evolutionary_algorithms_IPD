@@ -38,6 +38,7 @@ class Prisoner {
 		bool operator ==(const Prisoner& rhs) const;
 
 		void randomly_initalize_tree();
+		unique_ptr<Prisoner> generate_full_tree(const int depth) const;
 		unique_ptr<Prisoner> generate_branch(int depth) const;
 		string random_operator() const;
 		int random_leaf() const;
@@ -87,6 +88,8 @@ class Prisoner {
 
 		deque<Move> current_move_queue;
 };
+
+string leaf_to_string(const int leaf);
 
 namespace std {
 	template<>

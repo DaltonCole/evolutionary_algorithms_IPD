@@ -1,6 +1,6 @@
 #include "helper.h"
 
-void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string) {
+void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string, string& absolute_string) {
 	// Make population
 	vector<Prisoner> population(Prisoner::config.population_size);
 
@@ -20,6 +20,10 @@ void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string) {
 	// Set up log_string
 	log_string = "";
 
+	// Set up absoute log
+	vector<Prisoner> temp = population;
+	absolute_string = "";
+
 	// Set up hall-of-fame
 	deque<Prisoner> hall_of_fame;
 
@@ -28,7 +32,6 @@ void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string) {
 		cout << "Running run " << run_number + 1 << " of " << Prisoner::config.runs << 
 			"\t" << "Fitness Evals: " << i << " / " << Prisoner::config.fitness_evaluations
 		 	<< "                 " << flush << "\r";
-
 
 		// Find parents
 		find_parents(population, parents);
@@ -64,6 +67,17 @@ void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string) {
 		log_string += to_string(i + population.size());
 		log_string += " \t" + to_string(find_average_fitness(population));
 		log_string += " \t" + to_string(population[0].get_fitness()) + "\n";
+
+		// --- Set up absolute log ---
+		temp = population;
+		for(auto& p : temp) {
+			p.assign_fitness();
+		}
+		sort(temp.begin(), temp.end(), greater<Prisoner>());
+		absolute_string += to_string(i + temp.size());
+		absolute_string += " \t" + to_string(find_average_fitness(temp));
+		absolute_string += " \t" + to_string(temp[0].get_fitness()) + "\n";
+		// ---------------------------
 		
 		// If converging, quit
 		if(population[0].get_fitness() == previous_fitness) {
@@ -77,8 +91,17 @@ void pg_run(const int run_number, Prisoner& best_prisoner, string& log_string) {
 		}
 	}
 
-	best_prisoner = population[0];
+	// Apply tic-for-tat to population
+	for(auto& p : population) {
+		p.assign_fitness();
+	}
+	sort(population.begin(), population.end(), greater<Prisoner>());
 
+	// Log tic-for-tat best fitness
+	log_string += "Absolute Fitness \n";
+	log_string += (to_string(population[0].get_fitness()) + "\n");
+
+	best_prisoner = population[0];
 }
 
 // Make moves for move queue
@@ -120,15 +143,18 @@ void fitness_proportional_selection(vector<Prisoner>& population, vector<Prisone
 	float total_fitness = 0;
 	float tracker = 0;
 	int random_number;
-	int minimum;
+	int minimum = 9999999;
+
+	// Find minimum value
+	for(const auto& p : population) {
+		if(p.get_fitness() < minimum) {
+			minimum = p.get_fitness();
+		}
+	}
 
 	// Find total fitness
 	for(const auto& p : population) {
-		int temp = p.get_fitness() + 1;
-		total_fitness += abs(temp);
-		if(temp < minimum) {
-			minimum = temp;
-		}
+		total_fitness += (p.get_fitness() - minimum);
 	}
 
 	// While there are more parents to add
@@ -136,14 +162,15 @@ void fitness_proportional_selection(vector<Prisoner>& population, vector<Prisone
 		// Reset tracker
 		tracker = 0;
 		// Pick a random number between 0 and total fitness
-		random_number = rand() % max(int(ceil(total_fitness)), 1);
+		random_number = rand() % max(int(total_fitness), 1);
 		
 		// When tracker is greater than random number, add that
 		// prisoner to the parent population
 		for(auto& p : population) {
-			tracker += (abs(p.get_fitness()) + minimum + 1);
+			tracker += (p.get_fitness() - minimum);
 			if(tracker >= random_number) {
 				parents.push_back(&p);
+				break;
 			}
 		}
 	}
@@ -303,12 +330,29 @@ void make_log_file(vector<string>& log) {
 		for(auto& l : log) {
 			log_file << l;
 		}
+		log_file << "\n";
 
 		log_file.close();
 	} else {
 		cout << "Error opening file: " << Prisoner::config.log_file_path << endl;
 	}
 }
+
+// Make absolute fitness log file
+void make_absolute_fitness_log_file(vector<string>& overall_absolute_fitness_log) {
+	ofstream absolute_log("./absolute_fitness_log/" + to_string(Prisoner::config.random_seed));
+	if(absolute_log.is_open()) {
+		for(auto& l : overall_absolute_fitness_log) {
+			absolute_log << l;
+		}
+		absolute_log << "\n";
+
+		absolute_log.close();
+	} else {
+		cout << "Error opening absolute log file." << endl;
+	}
+}
+
 
 // Find average fitness
 float find_average_fitness(const vector<Prisoner>& population) {
@@ -323,16 +367,24 @@ float find_average_fitness(const vector<Prisoner>& population) {
 // BONUS 1 AND 2
 // Do hall-of-fame and detect cycling
 void inforce_hall_of_fame(vector<Prisoner>& population, deque<Prisoner>& hall_of_fame) {
-	while(true) {
-		// Item is not in the hall of fame or is the last item
-		if(find(hall_of_fame.begin(), hall_of_fame.end(), population[0]) == hall_of_fame.end()) {
-			hall_of_fame.push_back(population[0]);
-			break;
-		} else if(hall_of_fame.back() == population[0]) {
-			break;
-		} else {
-			cout << "cycling has occured, removing first element, adding random element" << endl;
-			population[0].randomly_initalize_tree();
+	if(Prisoner::config.detect_cycling == "true") {
+		while(true) {
+			// Item is not in the hall of fame or is the last item
+			if(find(hall_of_fame.begin(), hall_of_fame.end(), population[0]) == hall_of_fame.end()) {
+				hall_of_fame.push_back(population[0]);
+				break;
+			} else if(hall_of_fame.back() == population[0]) {
+				break;
+			} else {
+				cout << "cycling has occured";
+				if(Prisoner::config.deter_cycling == "true") {
+					population[0].randomly_initalize_tree();
+					cout << ", removing first element, adding random element";
+				} 
+				cout << endl;
+			}
 		}
 	}
+
+	return;
 }

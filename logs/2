@@ -1,17 +1,17 @@
 Config File Used:
 
-Random_Seed 0
+Random_Seed 2
 l 30
 k 5
 d 10
 Runs 1
 Fitness_Evaluations 10000
-Log_File_Path logs/0
-Solution_File_Path solutions/0
+Log_File_Path logs/2
+Solution_File_Path solutions/2
 Population_Size 100
 Children_Count 50
 Parent_Selection Fitness_Proportional_Selection
-Survival_Selection Truncation
+Survival_Selection K_Tournament_No_Replacement
 Parsimony_Pressure_Penalty_Coefficent 0.100000
 Termination_Convergence_Criterion 10000
 Over_Selection 0.200000
@@ -21,13 +21,13 @@ K_Tournament_No_Replacement_K_Value 2
 Result Log
 
 Run 1
-1600 	2.259171 	3.277000
-3200 	1.648098 	2.352173
-4800 	1.466383 	2.266849
-6400 	1.262986 	1.728037
-8000 	1.220992 	2.447838
-9600 	1.045249 	1.207439
-11200 	1.120997 	1.645925
+1600 	2.535597 	3.358500
+3200 	2.122425 	2.518905
+4800 	2.486239 	2.500619
+6400 	2.472657 	2.637456
+8000 	2.404092 	2.637487
+9600 	2.514803 	3.012813
+11200 	2.505955 	2.721763
 Absolute Fitness 
-3.200000
+2.900000
 
