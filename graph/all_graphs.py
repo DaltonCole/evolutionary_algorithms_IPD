@@ -14,9 +14,11 @@ preivious_line = ''
 
 for file in files:
 	keep_track = False
+	keep_absolute = False
 	ave_dict = {}
 	best_dict = {}
 	last_eval = []
+	absolute_eval = []
 	with open("../logs/" + str(file), 'r') as f:
 		for line in f:
 			if "Run" in line and "Runs" not in line:
@@ -25,6 +27,10 @@ for file in files:
 			elif "Absolute Fitness" in line:
 				keep_track = False
 				last_eval.append(preivious_line)
+				keep_absolute = True
+			elif keep_absolute == True:
+				absolute_eval.append(line)
+				keep_absolute = False
 			elif keep_track == True:
 				preivious_line = line
 				eve, ave, best = line.split()
@@ -77,6 +83,11 @@ for file in files:
 	### Add last eval points ###
 	with open("./points/relative/" + str(file), 'w') as f:
 		for line in last_eval:
+			f.write(line.split()[-1] + '\n')
+
+	### Add last absolute eval points ###
+	with open("./points/absolute/" + str(file), 'w') as f:
+		for line in absolute_eval:
 			f.write(line.split()[-1] + '\n')
 
 ############# ABSOLUTE #############
@@ -144,8 +155,3 @@ for file in files:
 
 	# Clear graph memory
 	plt.clf()
-
-	### Add last eval points ###
-	with open("./points/absolute/" + str(file), 'w') as f:
-		for line in last_eval:
-			f.write(line.split()[-1] + '\n')

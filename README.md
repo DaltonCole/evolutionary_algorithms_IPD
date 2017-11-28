@@ -1,4 +1,4 @@
-# EC Assignment 2b
+# EC Assignment 2c
 
 ## General Info
 

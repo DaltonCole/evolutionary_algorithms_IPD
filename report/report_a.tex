@@ -18,42 +18,268 @@
 	\maketitle
 
 	\section{Methodology}
+	For this experiment, a coevolutionary search of the Iterated Prisoner’s Dilemma was performed. Table \ref{tab:config} shows the configurable parameters for the experiment. For the statistical analysis shown later in this report, Table \ref{tab:this_config} shows the configuration parameters used. 
+
+	The following sub-sections will describe some of the underlining structures of the coevolutionary algorithm used.
+
+	\subsection{Initial Starting Population}
+	The fitness for the initial starting population was assigned via the tic-for-tat method. This only influenced in the parent selection portion of first evaluation cycle. The purpose of this is because the underlining goal is to create an evolutionary algorithm which is strong against the tic-for-tat method. Having the initial population be based on that gives the tic-for-tat initial goal.
+
+	\subsection{Move Queue}
+	Every Prisoner initially starts out with the exact same move queue each time it is evaluated. This is done so each strategy is on an even playing field, meaning, no strategy has an easier or harder move sequence to evolve from.
+
+	\subsection{Tree Generation}
+	There is a fifty-fifty percent chance that full method or grow method for ramped half-and-half will be chosen. When grow method is chosen, each node has a $((Max Depth - Current Depth) / Max Depth) * 100$ percent chance of growing into a branch. Each operator and memory location has an equal chance of being chosen. 
+
+	\subsection{Sub-Tree Crossover}
+	For recombination, sub-tree crossover was used. A node of equal depth on each tree was chosen to switch between one another. An equal depth node was chosen as to not go over the depth limit.
+
+	\begin{table}
+		\centering
+		\caption{Configurable Parameters}
+		\label{tab:config}
+		\begin{tabular}{| c | c |}
+			\hline
+				\textbf{Parameter} & \textbf{Options} \\
+				\hline
+				Random Seed & Any Integer \\
+				\hline
+				Number of Iterations to Play & Any Integer \\
+				\hline
+				Number of Iterations to Keep in Memory & Any Integer \\
+				\hline
+				Maximum Tree Depth & Any Integer \\
+				\hline
+				Number of Runs & Any Integer \\
+				\hline
+				Number of Fitness Evaluations & Any Integer \\
+				\hline
+				Population Size & Any Integer \\
+				\hline
+				Number of Children Per Generation & Any Integer \\
+				\hline
+				Parent Selection Strategy 	& Fitness Proportional Selection \\
+											& Over Selection \\
+				\hline
+				Survival Selection	& Truncation \\
+									& K-Tournament without Replacement \\
+				\hline
+				Parsimony Pressure Penalty Coefficient & Any Float \\
+				\hline
+				Termination Convergence Criterion & Any Integer \\
+				\hline
+				Survival Selection Strategy 	& Plus \\
+												& Comma \\
+				\hline
+				Coevolutionary Fitness Sampling	& Any Integer between 1 and Population Size + Children Count - 1 \\
+				\hline
+				Detect Cycling & true or false \\
+				\hline
+				Deter Cycling & true or false \\
+			\hline
+		\end{tabular}
+	\end{table}
+
+	\begin{table}
+		\centering
+		\caption{Configurable Parameters}
+		\label{tab:this_config}
+		\begin{tabular}{| c | c |}
+			\hline
+			\textbf{Parameter} & \textbf{Options} \\
+			\hline
+			Random Seed & 0, 1, 2 \\
+			\hline
+			Number of Iterations to Play & 30 \\
+			\hline
+			Number of Iterations to Keep in Memory & 5 \\
+			\hline
+			Maximum Tree Depth & 10 \\
+			\hline
+			Number of Runs & 30 \\
+			\hline
+			Number of Fitness Evaluations & 10,000 \\
+			\hline
+			Population Size & 100 \\
+			\hline
+			Number of Children Per Generation & 50 \\
+			\hline
+			Parent Selection Strategy 	& Fitness Proportional Selection \\
+			\hline
+			Survival Selection	& Truncation \\
+			\hline
+			Parsimony Pressure Penalty Coefficient & 0.0, 0.5, 1.0 \\
+			\hline
+			Termination Convergence Criterion & 10,000 \\
+			\hline
+			Survival Selection Strategy 	& Plus \\
+			\hline
+			Coevolutionary Fitness Sampling	& 10 \\
+			\hline
+			Detect Cycling & false \\
+			\hline
+			Deter Cycling & false \\
+			\hline
+		\end{tabular}
+	\end{table}
+
 
 	\section{Experimental Setup}
+	Table \ref{tab:this_config} shows the configurations used for this experiment. One hundred was used as the population size so the experiment would run in a timely manner. Fifty children was chosen as a happy balance between exploitation and exploration. Fitness Proportional Selection was selected because it gave a slight speed boost when compared to K-Tournament without Replacement. The Plus Survival Selection Strategy was selected so past generations could more directly influence current generations in the creation of a more optimal solution. A Coevolutionary Fitness Sampling value of 10 was chosen because it lead to more generations than a larger value, but comparing strategies to one another is still seen as important. Parsimony Pressure was selected to test how much it effected the dependent variable (absolute fitness against Tic-For-Tat). Parsimony Pressure took on three different values over the course of the experiment: 0.0, 0.5, and 1.0.
 
 	\section{Results}
 
+	The results of the experiment showed that there was no significant difference between using a higher Parsimony Pressure Penalty Coefficient when compared to a lower one or none at all. Figures \ref{fig:stat_rel_01}, \ref{fig:stat_rel_02}, \ref{fig:stat_rel_12}, \ref{fig:stat_abs_01}, and \ref{fig:stat_abs_012} all come to this conclusion. It is worth noting, as seen in Table \ref{tab:std_mean}, that the mean fitness increases as parsimony pressure goes up, just not at a significant level.
+
+	Figures \ref{fig:relative_plot_0}, \ref{fig:relative_plot_1}, and \ref{fig:relative_plot_2} show the relative fitness plots for the three trials. Figures \ref{fig:absolute_plot_0}, \ref{fig:absolute_plot_1}, and \ref{fig:absolute_plot_2} show the absolute fitness plots for the three trials.
+
 	\section{Discussion}
+
+	Figures \ref{fig:relative_plot_0}, \ref{fig:relative_plot_1}, and \ref{fig:relative_plot_2} show the relative progression of fitness value between coevolutionary algorithms. With no parsimony pressure, Figure \ref{fig:relative_plot_0} slowly loses fitness over time. This is likely because each Prisoner is adapting to the other prisoners, thus decreasing the fitness between one another. As can be seen in Figure \ref{fig:absolute_plot_0}, this has no effect on the absolute fitness. Unlike $0.0$ parsimony pressure, Figures \ref{fig:relative_plot_1} and \ref{fig:relative_plot_2} show a general increase in relative fitness as time goes on. However, Figures \ref{fig:absolute_plot_1} and \ref{fig:absolute_plot_2} show a slow decent in the absolute fitness of the two strategies. This may be because some strategies are getting better at playing with one another, but not at the overall goal of beating tic-for-tat. One possible solution to this would be to re-introduce fitness based on tic-for-tat every $x$ generations to weed out individuals that are solely evolving to fight other evolved Prisoners.
 
 	\section{Conclusion}
 
-	\section{Bonus 1}
-
-	\section{bonus 2}
-
-	Methodology section 10
-Experimental setup section 5
-Results section 10
-Discussion section 10
-Conclusion section 
-
-	\section{Genetic Programming Search}
-	For this experiment, implementing a genetic programming search of the Prisoner's Dilemma was required. Evaluations vs Fitness Plot can be seen in Figure \ref{fig:plot}.
-
-	As seen in Figure \ref{fig:stat}, genetic programming search out performs random search.
+	From this experiment, it has been found that although a higher parsimony pressure coefficient leads to a higher mean fitness, there is no significant difference between using no parsimony pressure and using a medium or high coefficient. In the future it is worth looking at what effects on fitness re-introducing assigning fitnesses based on tic-for-tat every $x$ generations will have on the end fitness.
 
 	\begin{figure}
-		\caption{Eval vs Fitness Plot}
-		\label{fig:plot}
+		\caption{Relative Fitness For Parsimony Pressure Penalty Coefficient = 0.0}
+		\label{fig:relative_plot_0}
 		\includegraphics[width=\textwidth]{../graph/graphs/0.pdf}
 	\end{figure}
 
 	\begin{figure}
-		\caption{Statistical Analysis}
-		\label{fig:stat}
-		\includegraphics[width=\textwidth]{./pictures/test.pdf}
+		\caption{Relative Fitness For Parsimony Pressure Penalty Coefficient = 0.5}
+		\label{fig:relative_plot_1}
+		\includegraphics[width=\textwidth]{../graph/graphs/1.pdf}
+	\end{figure}
+
+	\begin{figure}
+		\caption{Relative Fitness For Parsimony Pressure Penalty Coefficient = 1.0}
+		\label{fig:relative_plot_2}
+		\includegraphics[width=\textwidth]{../graph/graphs/2.pdf}
 	\end{figure}
 
 
+
+	\begin{figure}
+		\caption{Absolute Fitness For Parsimony Pressure Penalty Coefficient = 0.0}
+		\label{fig:absolute_plot_0}
+		\includegraphics[width=\textwidth]{../graph/absolute/0.pdf}
+	\end{figure}
+
+	\begin{figure}
+		\caption{Absolute Fitness For Parsimony Pressure Penalty Coefficient = 0.5}
+		\label{fig:absolute_plot_1}
+		\includegraphics[width=\textwidth]{../graph/absolute/1.pdf}
+	\end{figure}
+
+	\begin{figure}
+		\caption{Absolute Fitness For Parsimony Pressure Penalty Coefficient = 1.0}
+		\label{fig:absolute_plot_2}
+		\includegraphics[width=\textwidth]{../graph/absolute/2.pdf}
+	\end{figure}
+
+
+	\begin{figure}
+		\caption{Statistical Analysis for Relative Parsimony Pressure Penalty Coefficient 0.0 VS 0.5}
+		\label{fig:stat_rel_01}
+		\includegraphics[width=\textwidth]{./pictures/relative_01.pdf}
+	\end{figure}
+
+	\begin{figure}
+		\caption{Statistical Analysis for Relative Parsimony Pressure Penalty Coefficient 0.0 VS 1.0}
+		\label{fig:stat_rel_02}
+		\includegraphics[width=\textwidth]{./pictures/relative_02.pdf}
+	\end{figure}
+
+	\begin{figure}
+		\caption{Statistical Analysis for Relative Parsimony Pressure Penalty Coefficient 0.5 VS 1.0}
+		\label{fig:stat_rel_12}
+		\includegraphics[width=\textwidth]{./pictures/relative_12.pdf}
+	\end{figure}
+
+	\begin{figure}
+		\caption{Statistical Analysis for Absolute Parsimony Pressure Penalty Coefficient 0.0 VS 0.5 (NOTE: 0.0 and 0.5 have the same absolute fitness)}
+		\label{fig:stat_abs_01}
+		\includegraphics[width=\textwidth]{./pictures/absolute_01.pdf}
+	\end{figure}
+
+	\begin{figure}
+		\caption{Statistical Analysis for Absolute Parsimony Pressure Penalty Coefficient 0.0 and 0.5 VS 1.0 (NOTE: 0.0 and 0.5 have the same absolute fitness)}
+		\label{fig:stat_abs_012}
+		\includegraphics[width=\textwidth]{./pictures/absolute_012.pdf}
+	\end{figure}
+
+	\begin{table}
+		\centering
+		\caption{Averages and Standard Deviations for Each Strategy}
+		\label{tab:std_mean}
+		\begin{tabular}{| c | c | c |}
+			\hline
+									& Mean 		& Standard Deviation 	\\
+			\hline
+			Relative Fitness 0.0	& 1.7305289 & 0.314925982			\\
+			\hline
+			Relative Fitness 0.5	& 3.120685967 &	0.413506412			\\
+			\hline
+			Relative Fitness 1.0	& 3.280441267 &	0.353049552			\\
+			\hline
+			Absolute Fitness 0.0	& 3.4		 & 0					\\
+			\hline
+			Absolute Fitness 0.5	& 3.4		 & 0					\\
+			\hline
+			Absolute Fitness 1.0	& 4.2		 & 0					\\
+			\hline
+		\end{tabular}
+	\end{table}
+
+	\section{Bonus 1}
+	To detect cycling, a dequeue is used. Each time after survival selection is completed, the best Prisoner is added to the end of the dequeue. If this Prisoner already exists in the dequeue, but is not already at the end, then we know that cycling has occurred, as in, a Prisoner who was previously the best, but was dethroned, is now the best again. An investigation of the effects of cycling is talked about in Section \textit{Bonus 2}.
+
+	\section{Bonus 2}
+	To deter cycling, when a cycle is found, the best element is removed and replaced by a randomly generated Prisoner. This is to add diversity into the population which should prevent cycling in the future.
+
+	In 30 runs of detecting and deterring cycling, 23 cycles were formed and deterred. As can be seen in Figure \ref{fig:rel_bonus}, average fitness slowly increases, however, best fitness slowly decreases. As with the main experiment, this might be due to the Prisoners getting better at playing with one another. Figure \ref{fig:abs_bonus} shows that the absolute fitness is maximized initially and stays maximized for the rest of the run, average fitness slowly decreases however.
+
+	Figure \ref{fig:stat_rel_bonus} shows the relative statistics comparing trial 3 (parsimony coefficient = 1.0) to the bonus trial. It is shown that the normal trial without cycling detection is significantly better. This is surprising since with deterring cycling, the strategy can have a perfect run against tic-for-tat. Figure \ref{fig:stat_abs_bonus} shows that there is no significant difference between the two trials. Table \ref{tab:std_mean_bonus} shows the mean and standard deviation for the bonus trial.
+
+	\begin{figure}
+		\caption{Relative Fitness For Bonus 1 and 2}
+		\label{fig:rel_bonus}
+		\includegraphics[width=\textwidth]{../graph/graphs/7.pdf}
+	\end{figure}
+
+	\begin{figure}
+		\caption{Absolute Fitness For Bonus 1 and 2}
+		\label{fig:abs_bonus}
+		\includegraphics[width=\textwidth]{../graph/absolute/7.pdf}
+	\end{figure}
+
+	\begin{figure}
+		\caption{Statistical Analysis Comparing Base Problem to Bonus 1 and 2 using Relative Fitness}
+		\label{fig:stat_rel_bonus}
+		\includegraphics[width=\textwidth]{./pictures/stat_rel_bonus.pdf}
+	\end{figure}
+
+	\begin{figure}
+		\caption{Statistical Analysis Comparing Base Problem to Bonus 1 and 2 using Absolute Fitness}
+		\label{fig:stat_abs_bonus}
+		\includegraphics[width=\textwidth]{./pictures/stat_abs_bonus.pdf}
+	\end{figure}
+
+	\begin{table}
+		\centering
+		\caption{Averages and Standard Deviations for Bonus}
+		\label{tab:std_mean_bonus}
+		\begin{tabular}{| c | c | c |}
+			\hline
+									& Mean 		& Standard Deviation 	\\
+			\hline
+			Relative Fitness 1.0	& 2.698237067 & 1.271516005			\\
+			\hline
+			Absolute Fitness 1.0	& 5.0		 & 0					\\
+			\hline
+		\end{tabular}
+	\end{table}
 		
 \end{document}

@@ -318,8 +318,13 @@ void Prisoner::coevolutionary_assign_fitness(vector<Prisoner>& population, int& 
 		}
 	}
 
+	// Take the mean
 	fitness /= ((config.iterations - (2 * config.agent_memory_length)) * prisoners_to_compare.size());
 
+	// Add parsimony pressure
+	fitness -= (config.parsimony_pressure * current_depth);
+
+	// Increase evaluations count
 	fintess_evaulations += prisoners_to_compare.size();
 }
 
