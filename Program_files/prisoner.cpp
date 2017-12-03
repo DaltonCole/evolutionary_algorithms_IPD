@@ -259,7 +259,7 @@ void Prisoner::assign_fitness() {
 		// Make decision
 		decision = find_value();
 		// Add fitness value to fitness
-		fitness += fitness_function(decision, current_move_queue.back().o);
+		fitness += fitness_function(decision, current_move_queue.back().p);
 		// Apply tic-for-tac
 		append_tic_for_tac(current_move_queue, decision);
 	}

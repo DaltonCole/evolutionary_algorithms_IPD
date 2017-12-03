@@ -120,7 +120,7 @@ void make_past_moves(const int number_of_moves, deque<Move>& move_queue) {
 void append_tic_for_tac(deque<Move>& move_queue, const bool p_move) {
 	Move m;
 	m.p = p_move;
-	m.o = move_queue.front().o;
+	m.o = move_queue.back().p;
 	move_queue.pop_front();
 	move_queue.push_back(m);
 
@@ -367,21 +367,17 @@ float find_average_fitness(const vector<Prisoner>& population) {
 // Do hall-of-fame and detect cycling
 void inforce_hall_of_fame(vector<Prisoner>& population, deque<Prisoner>& hall_of_fame) {
 	if(Prisoner::config.detect_cycling == "true") {
-		while(true) {
-			// Item is not in the hall of fame or is the last item
-			if(find(hall_of_fame.begin(), hall_of_fame.end(), population[0]) == hall_of_fame.end()) {
-				hall_of_fame.push_back(population[0]);
-				break;
-			} else if(hall_of_fame.back() == population[0]) {
-				break;
-			} else {
-				cout << "cycling has occured";
-				if(Prisoner::config.deter_cycling == "true") {
-					population[0].randomly_initalize_tree();
-					cout << ", removing first element, adding random element";
-				} 
-				cout << endl;
+		// Item is not in the hall of fame or is the last item
+		if(find(hall_of_fame.begin(), hall_of_fame.end(), population[0]) == hall_of_fame.end()) {
+			hall_of_fame.push_back(population[0]);
+		} else if(hall_of_fame.back() == population[0]) {
+		} else {
+			cout << "cycling has occured";
+			if(Prisoner::config.deter_cycling == "true") {
+				population[0].randomly_initalize_tree();
+				cout << ", removing first element, adding random element";
 			}
+			cout << endl;
 		}
 	}
 

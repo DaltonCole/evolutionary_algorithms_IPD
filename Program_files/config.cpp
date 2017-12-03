@@ -143,6 +143,10 @@ ostream& operator <<(ostream& os, Config& c) {
 	os << "Over_Selection " << to_string(c.over_selection) << "\n";
 	os << "Mutation_Rate " << to_string(c.mutation_rate) << "\n";
 	os << "K_Tournament_No_Replacement_K_Value " << to_string(c.k_tournament_no_replacement) << "\n";
+	os << "Survival_Selection_Strategy " << c.survival_selection_strategy << "\n";
+	os << "Coevolutionary_Fitness_Sampling_Percentage " << to_string(c.coevolutionary_fitness_sampling_percentage) << "\n";
+	os << "Detect_Cycling " << c.detect_cycling << "\n";
+	os << "Deter_Cycling" << c.deter_cycling << "\n";
 
 	return os;
 }

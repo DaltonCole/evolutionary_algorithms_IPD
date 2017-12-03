@@ -129,13 +129,18 @@
 
 	\section{Results}
 
-	The results of the experiment showed that there was no significant difference between using a higher Parsimony Pressure Penalty Coefficient when compared to a lower one or none at all. Figures \ref{fig:stat_rel_01}, \ref{fig:stat_rel_02}, \ref{fig:stat_rel_12}, \ref{fig:stat_abs_01}, and \ref{fig:stat_abs_012} all come to this conclusion. It is worth noting, as seen in Table \ref{tab:std_mean}, that the mean fitness increases as parsimony pressure goes up, just not at a significant level.
+	The results of the experiment showed that there was no significant difference between using a higher Parsimony Pressure Penalty Coefficient when compared to a lower one or none at all. Figures \ref{fig:stat_rel_01}, \ref{fig:stat_rel_02}, \ref{fig:stat_rel_12}, and \ref{fig:stat_abs_012} all come to this conclusion. It is worth noting, as seen in Table \ref{tab:std_mean}, that the mean fitness increases as parsimony pressure goes up, just not at a significant level.
 
 	Figures \ref{fig:relative_plot_0}, \ref{fig:relative_plot_1}, and \ref{fig:relative_plot_2} show the relative fitness plots for the three trials. Figures \ref{fig:absolute_plot_0}, \ref{fig:absolute_plot_1}, and \ref{fig:absolute_plot_2} show the absolute fitness plots for the three trials.
 
 	\section{Discussion}
 
-	Figures \ref{fig:relative_plot_0}, \ref{fig:relative_plot_1}, and \ref{fig:relative_plot_2} show the relative progression of fitness value between coevolutionary algorithms. With no parsimony pressure, Figure \ref{fig:relative_plot_0} slowly loses fitness over time. This is likely because each Prisoner is adapting to the other prisoners, thus decreasing the fitness between one another. As can be seen in Figure \ref{fig:absolute_plot_0}, this has no effect on the absolute fitness. Unlike $0.0$ parsimony pressure, Figures \ref{fig:relative_plot_1} and \ref{fig:relative_plot_2} show a general increase in relative fitness as time goes on. However, Figures \ref{fig:absolute_plot_1} and \ref{fig:absolute_plot_2} show a slow decent in the absolute fitness of the two strategies. This may be because some strategies are getting better at playing with one another, but not at the overall goal of beating tic-for-tat. One possible solution to this would be to re-introduce fitness based on tic-for-tat every $x$ generations to weed out individuals that are solely evolving to fight other evolved Prisoners.
+	Figures \ref{fig:relative_plot_0}, \ref{fig:relative_plot_1}, and \ref{fig:relative_plot_2} shows the relative progression of fitness value between coevolutionary algorithms. All three of these figures show a decrease in best fitness over time. This is likely because Prisoners are becoming better at playing against one another. Figure \ref{fig:relative_plot_0} has a general decrease in average fitness, while the figures with a non-zero parsimony pressure have a slow increase in average fitness. This may be because fitness is initially decreased due to the parsimony pressure, and increases as large trees become sparse. None of th
+
+	Figures \ref{fig:absolute_plot_0}, \ref{fig:absolute_plot_1}, and \ref{fig:absolute_plot_2} shows the absolute progression of fitness value between coevolutionary algorithms. All the algorithms have a near perfect fitness against tic-for-tat, if not perfect. Although not significantly different, having a parsimony pressure does result in an optimal fitness vs not having parsimony pressure. The average absolute fitness for each three algorithms seem to be rather stable.
+
+
+	Figures \ref{fig:stat_rel_01}, \ref{fig:stat_rel_02}, \ref{fig:stat_rel_12}, \ref{fig:stat_abs_012} show no significant difference between any of the parsimony pressure values. Figure \ref{tab:std_mean} does however show that the mean value generally increases as parsimony pressure increases.
 
 	\section{Conclusion}
 
@@ -160,7 +165,6 @@
 	\end{figure}
 
 
-
 	\begin{figure}
 		\caption{Absolute Fitness For Parsimony Pressure Penalty Coefficient = 0.0}
 		\label{fig:absolute_plot_0}
@@ -178,7 +182,6 @@
 		\label{fig:absolute_plot_2}
 		\includegraphics[width=\textwidth]{../graph/absolute/2.pdf}
 	\end{figure}
-
 
 	\begin{figure}
 		\caption{Statistical Analysis for Relative Parsimony Pressure Penalty Coefficient 0.0 VS 0.5}
@@ -199,13 +202,7 @@
 	\end{figure}
 
 	\begin{figure}
-		\caption{Statistical Analysis for Absolute Parsimony Pressure Penalty Coefficient 0.0 VS 0.5 (NOTE: 0.0 and 0.5 have the same absolute fitness)}
-		\label{fig:stat_abs_01}
-		\includegraphics[width=\textwidth]{./pictures/absolute_01.pdf}
-	\end{figure}
-
-	\begin{figure}
-		\caption{Statistical Analysis for Absolute Parsimony Pressure Penalty Coefficient 0.0 and 0.5 VS 1.0 (NOTE: 0.0 and 0.5 have the same absolute fitness)}
+		\caption{Statistical Analysis for Absolute Parsimony Pressure Penalty Coefficient 0.0 VS 0.5 and 1.0 (NOTE: 0.5 and 1.0 have the same absolute fitness)}
 		\label{fig:stat_abs_012}
 		\includegraphics[width=\textwidth]{./pictures/absolute_012.pdf}
 	\end{figure}
@@ -218,30 +215,30 @@
 			\hline
 									& Mean 		& Standard Deviation 	\\
 			\hline
-			Relative Fitness 0.0	& 1.7305289 & 0.314925982			\\
+			Relative Fitness 0.0	& 1.815103267 & 0.311954147			\\
 			\hline
-			Relative Fitness 0.5	& 3.120685967 &	0.413506412			\\
+			Relative Fitness 0.5	& 3.166669567 &	0.336432956			\\
 			\hline
-			Relative Fitness 1.0	& 3.280441267 &	0.353049552			\\
+			Relative Fitness 1.0	& 3.335390367 &	0.308596783			\\
 			\hline
-			Absolute Fitness 0.0	& 3.4		 & 0					\\
+			Absolute Fitness 0.0	& 2.781111167 & 0.432641637			\\
 			\hline
-			Absolute Fitness 0.5	& 3.4		 & 0					\\
+			Absolute Fitness 0.5	& 3			 & 0					\\
 			\hline
-			Absolute Fitness 1.0	& 4.2		 & 0					\\
+			Absolute Fitness 1.0	& 3			 & 0					\\
 			\hline
 		\end{tabular}
 	\end{table}
 
 	\section{Bonus 1}
-	To detect cycling, a dequeue is used. Each time after survival selection is completed, the best Prisoner is added to the end of the dequeue. If this Prisoner already exists in the dequeue, but is not already at the end, then we know that cycling has occurred, as in, a Prisoner who was previously the best, but was dethroned, is now the best again. An investigation of the effects of cycling is talked about in Section \textit{Bonus 2}.
+	To detect cycling, a dequeue is used. Each time after survival selection is completed, the best Prisoner is added to the end of the dequeue. If this Prisoner already exists in the dequeue, but is not already at the end, then we know that cycling has occurred, as in, a Prisoner who was previously the best, but was dethroned, is now the best again. An investigation of the effects of cycling is discussed in Section \textit{Bonus 2}.
 
 	\section{Bonus 2}
 	To deter cycling, when a cycle is found, the best element is removed and replaced by a randomly generated Prisoner. This is to add diversity into the population which should prevent cycling in the future.
 
-	In 30 runs of detecting and deterring cycling, 23 cycles were formed and deterred. As can be seen in Figure \ref{fig:rel_bonus}, average fitness slowly increases, however, best fitness slowly decreases. As with the main experiment, this might be due to the Prisoners getting better at playing with one another. Figure \ref{fig:abs_bonus} shows that the absolute fitness is maximized initially and stays maximized for the rest of the run, average fitness slowly decreases however.
+	In 30 runs of detecting and deterring cycling, 23 cycles were formed and deterred. As can be seen in Figure \ref{fig:rel_bonus}, average fitness slowly increases while best fitness slowly decreases, similar to its none deterring counterpart \ref{fig:relative_plot_2}. As with the main experiment, this might be due to the Prisoners getting better at playing with one another. Figure \ref{fig:abs_bonus} shows that the absolute fitness is maximized initially and stays maximized for the rest of the run, average fitness remains mostly stagnant.
 
-	Figure \ref{fig:stat_rel_bonus} shows the relative statistics comparing trial 3 (parsimony coefficient = 1.0) to the bonus trial. It is shown that the normal trial without cycling detection is significantly better. This is surprising since with deterring cycling, the strategy can have a perfect run against tic-for-tat. Figure \ref{fig:stat_abs_bonus} shows that there is no significant difference between the two trials. Table \ref{tab:std_mean_bonus} shows the mean and standard deviation for the bonus trial.
+	Figure \ref{fig:stat_rel_bonus} shows the relative statistics comparing trial 3 (parsimony coefficient = 1.0) to the bonus trial. It is shown that the normal trial without cycling detection is significantly better in the relative fitness case. This is probably because the best Prisoner is thrown away when a cycle is detected. However, in the absolute fitness case, both algorithms perform equally well, both performing optimally against tic-for-tat. Table \ref{tab:std_mean_bonus} shows the mean and standard deviation for the bonus trial.
 
 	\begin{figure}
 		\caption{Relative Fitness For Bonus 1 and 2}
@@ -261,12 +258,6 @@
 		\includegraphics[width=\textwidth]{./pictures/stat_rel_bonus.pdf}
 	\end{figure}
 
-	\begin{figure}
-		\caption{Statistical Analysis Comparing Base Problem to Bonus 1 and 2 using Absolute Fitness}
-		\label{fig:stat_abs_bonus}
-		\includegraphics[width=\textwidth]{./pictures/stat_abs_bonus.pdf}
-	\end{figure}
-
 	\begin{table}
 		\centering
 		\caption{Averages and Standard Deviations for Bonus}
@@ -275,9 +266,9 @@
 			\hline
 									& Mean 		& Standard Deviation 	\\
 			\hline
-			Relative Fitness 1.0	& 2.698237067 & 1.271516005			\\
+			Relative Fitness 1.0	& 2.697945567 & 1.27891655			\\
 			\hline
-			Absolute Fitness 1.0	& 5.0		 & 0					\\
+			Absolute Fitness 1.0	& 3			 & 0					\\
 			\hline
 		\end{tabular}
 	\end{table}
